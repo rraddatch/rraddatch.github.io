@@ -1,0 +1,7 @@
+# robots.txt pre https://rraddatch.github.io/
+# Povoluje vsetkym vyhladavacom aj AI agentom pristup k celej stranke.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://rraddatch.github.io/sitemap.xml
