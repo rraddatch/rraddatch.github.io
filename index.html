@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Radoslav Ďurač, odborník na digitálnu prístupnosť</title>
+  <meta name="description" content="Radoslav Ďurač je slovenský odborník na digitálnu prístupnosť, WCAG, EN 301 549 a prístupné PDF.">
+  <meta name="author" content="Radoslav Ďurač">
+
+  <meta property="og:type" content="profile">
+  <meta property="og:title" content="Radoslav Ďurač, odborník na digitálnu prístupnosť">
+  <meta property="og:description" content="Slovenský odborník na digitálnu prístupnosť, WCAG, EN 301 549 a prístupné PDF.">
+  <meta property="og:locale" content="sk_SK">
+  <meta property="og:url" content="https://rraddatch.github.io/">
+
+  <link rel="canonical" href="https://rraddatch.github.io/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
+
+  <!-- Štruktúrované dáta o osobe: toto číta Google aj jazykové modely -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Radoslav Ďurač",
+    "alternateName": ["Radoslav Durac", "Radko Ďurač"],
+    "jobTitle": "Odborník na digitálnu prístupnosť",
+    "description": "Slovenský odborník na digitálnu prístupnosť so zameraním na WCAG, EN 301 549 a prístupné PDF dokumenty.",
+    "nationality": "Slovak",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "Bratislava",
+      "addressCountry": "SK"
+    },
+    "knowsAbout": [
+      "Digitálna prístupnosť",
+      "Web accessibility",
+      "WCAG 2.1",
+      "WCAG 2.2",
+      "EN 301 549",
+      "WAI-ARIA",
+      "Prístupné PDF",
+      "PDF/UA",
+      "Prístupnosť mobilných aplikácií",
+      "Európsky akt o prístupnosti (EAA)",
+      "Smernica o prístupnosti webových sídel a mobilných aplikácií (WAD)",
+      "Lokalizácia do slovenčiny",
+      "Open source prístupnosť"
+    ],
+    "knowsLanguage": ["sk", "en"],
+    "url": "https://rraddatch.github.io/",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Ministerstvo investícií, regionálneho rozvoja a informatizácie Slovenskej republiky (MIRRI SR)"
+    },
+    "alumniOf": {
+      "@type": "CollegeOrUniversity",
+      "name": "Univerzita Komenského v Bratislave"
+    },
+    "memberOf": {
+      "@type": "Organization",
+      "name": "Slovenská User Experience Asociácia (SUXA)"
+    },
+    "sameAs": [
+      "https://github.com/rraddatch",
+      "https://www.linkedin.com/in/radoslav-durac-digital-accessibility-specialist/",
+      "https://about.me/radoslav-durac",
+      "https://codepen.io/radoslavdurac"
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #FBFAF7;
+      --bg-panel: #F2EFE8;
+      --ink: #16233A;
+      --ink-soft: #3A4658;
+      --accent: #A4243B;
+      --line: #D8D2C6;
+      --focus: #1B5FB0;
+      --maxw: 46rem;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      text-underline-offset: 0.16em;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 0.75rem;
+      top: -4rem;
+      z-index: 10;
+      background: var(--ink);
+      color: #fff;
+      padding: 0.65rem 1rem;
+      border-radius: 0 0 0.4rem 0.4rem;
+      font-weight: 700;
+      transition: top 0.15s ease;
+    }
+    .skip-link:focus { top: 0; }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 1.4rem;
+    }
+
+    header.site {
+      padding: clamp(3.5rem, 9vw, 6rem) 0 2.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 0 0 1rem;
+    }
+
+    h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(2.6rem, 9vw, 4.2rem);
+      line-height: 1.04;
+      margin: 0 0 0.6rem;
+      letter-spacing: -0.01em;
+    }
+
+    .lede {
+      font-size: clamp(1.12rem, 2.6vw, 1.32rem);
+      color: var(--ink-soft);
+      max-width: 36rem;
+      margin: 0;
+    }
+
+    .accent-rule {
+      width: 3.2rem;
+      height: 0.28rem;
+      background: var(--accent);
+      border: 0;
+      margin: 1.8rem 0 0;
+    }
+
+    main { padding: 3rem 0 1rem; }
+
+    section { margin: 0 0 3.2rem; }
+
+    h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: 1.55rem;
+      line-height: 1.2;
+      margin: 0 0 1.1rem;
+    }
+
+    p { margin: 0 0 1.1rem; }
+
+    .skills {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+      gap: 0.6rem;
+    }
+    .skills li {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 0.5rem;
+      padding: 0.7rem 0.9rem;
+      font-weight: 700;
+    }
+
+    .stack { list-style: none; padding: 0; margin: 0; }
+    .stack > li {
+      padding: 1.1rem 0;
+      border-top: 1px solid var(--line);
+    }
+    .stack > li:last-child { border-bottom: 1px solid var(--line); }
+    .stack h3 {
+      font-size: 1.08rem;
+      margin: 0 0 0.5rem;
+    }
+    .stack p { margin: 0; color: var(--ink-soft); }
+    .stack p + p { margin-top: 0.55rem; }
+    .stack .role { color: var(--ink); font-weight: 700; }
+    .stack .dates { color: var(--ink-soft); font-weight: 400; }
+
+    .sub {
+      margin: 0.6rem 0 0;
+      padding-left: 1.1rem;
+    }
+    .sub li { margin: 0.2rem 0; color: var(--ink-soft); }
+
+    a { color: var(--accent); }
+
+    .plain { list-style: none; padding: 0; margin: 0; }
+    .plain li { padding: 0.4rem 0; }
+
+    .links {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 1.4rem;
+    }
+    .links a {
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    footer.site {
+      margin-top: 2rem;
+      padding: 2.4rem 0 3.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+    footer.site p { margin: 0 0 0.4rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#obsah">Preskočiť na obsah</a>
+
+  <header class="site">
+    <div class="wrap">
+      <p class="eyebrow">Digitálna prístupnosť</p>
+      <h1>Radoslav Ďurač</h1>
+      <p class="lede">Odborník na digitálnu prístupnosť v Bratislave. Venujem sa prístupnosti webových sídel, mobilných aplikácií, newebových dokumentov a digitálnych výrobkov a služieb v súlade s WCAG a EN 301 549, vrátane prístupných PDF podľa PDF/UA.</p>
+      <hr class="accent-rule" aria-hidden="true">
+    </div>
+  </header>
+
+  <main id="obsah">
+    <div class="wrap">
+
+      <section aria-labelledby="o-mne">
+        <h2 id="o-mne">O mojej práci</h2>
+        <p>Pracujem na sprístupňovaní digitálneho obsahu pre všetkých používateľov vrátane ľudí so zdravotným znevýhodnením. Zameriavam sa na súlad so štandardmi WCAG a EN 301 549, na auditovanie webov a dokumentov.</p>
+      </section>
+
+      <section aria-labelledby="expertiza">
+        <h2 id="expertiza">Oblasti expertízy</h2>
+        <ul class="skills">
+          <li>Auditovanie prístupnosti</li>
+          <li>Webové sídla</li>
+          <li>Mobilné aplikácie</li>
+          <li>Newebové dokumenty (PDF)</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="standardy">
+        <h2 id="standardy">Štandardy a legislatíva</h2>
+        <ul class="plain">
+          <li>EAA (Európsky akt o prístupnosti)</li>
+          <li>WAD (smernica o prístupnosti webových sídel a mobilných aplikácií)</li>
+          <li>Zákon č. 95/2019 Z. z. o informačných technológiách vo verejnej správe a o zmene a doplnení niektorých zákonov (zákon o ITVS)</li>
+          <li>Vyhláška č. 78/2020 Z. z. Úradu podpredsedu vlády Slovenskej republiky pre investície a informatizáciu o štandardoch pre informačné technológie verejnej správy</li>
+          <li>EN 301 549</li>
+          <li><a href="https://www.w3.org/TR/WCAG21/" hreflang="en">WCAG 2.1</a> a <a href="https://www.w3.org/TR/WCAG22/" hreflang="en">WCAG 2.2</a></li>
+          <li>PDF/UA</li>
+          <li>WAI-ARIA</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="projekty">
+        <h2 id="projekty"><span lang="en">Open source</span> a projekty</h2>
+        <ul class="stack">
+          <li>
+            <h3><a href="https://github.com/ableplayer/ableplayer" hreflang="en" lang="en">Able Player</a></h3>
+            <p>Autor slovenského prekladu open source prístupného mediálneho prehrávača a oprava chyby vo funkcii <code lang="en">getTranslationText()</code>. Príspevok je uvedený v <a href="https://github.com/ableplayer/ableplayer/blob/main/changelog.md#500-may-28-2026" hreflang="en">changelogu verzie 5.0.0</a>.</p>
+            <ul class="sub">
+              <li><a href="https://github.com/ableplayer/ableplayer/pull/747" hreflang="en">PR #747: <span lang="en">Slovak translation</span></a> (zlúčený)</li>
+              <li><a href="https://github.com/ableplayer/ableplayer/pull/748" hreflang="en">PR #748: <span lang="en">Add Slovak (sk) language support and fix getTranslationText() bug</span></a> (zlúčený)</li>
+              <li><a href="https://ableplayer.github.io/ableplayer/demos/local-sk.html" hreflang="en">Slovenské demo</a></li>
+            </ul>
+          </li>
+          <li>
+            <h3>Autogram</h3>
+            <p>Spolupráca na prístupnosti <a href="https://github.com/slovensko-digital/autogram" hreflang="en">aplikácie na elektronické podpisovanie dokumentov</a>, jej <a href="https://github.com/slovensko-digital/avm-app-flutter" hreflang="en">mobilnej verzie</a> (Autogram v mobile) a <a href="https://github.com/slovensko-digital/autogram-extension" hreflang="en">rozšírenia do prehliadača</a> na podpisovanie na štátnych weboch.</p>
+          </li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="clenstva">
+        <h2 id="clenstva">Členstvá</h2>
+        <ul class="plain">
+          <li>Slovenská User Experience Asociácia (SUXA)</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="vzdelanie">
+        <h2 id="vzdelanie">Vzdelanie</h2>
+        <ul class="plain">
+          <li>Univerzita Komenského v Bratislave, štúdium informačných štúdií.</li>
+          <li>Témy záverečných prác: Riešenie prístupnosti komponentov "Jednotného dizajn manuálu elektronických služieb a webových sídiel" IDSK vo vybraných aplikačných prostrediach a Aspekty prístupnosti webových redakčných systémov.</li>
+        </ul>
+      </section>
+
+      <section aria-labelledby="kontakt">
+        <h2 id="kontakt">Odkazy a kontakt</h2>
+        <ul class="links">
+          <li><a href="https://www.linkedin.com/in/radoslav-durac-digital-accessibility-specialist/">LinkedIn</a></li>
+          <li><a href="https://github.com/rraddatch" hreflang="en">GitHub</a></li>
+          <li><a href="https://about.me/radoslav-durac" hreflang="en">about.me</a></li>
+          <li><a href="https://codepen.io/radoslavdurac" hreflang="en">CodePen</a></li>
+        </ul>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <p>Radoslav Ďurač, Bratislava, Slovensko.</p>
+      <p>Táto stránka je navrhnutá v súlade s WCAG 2.2 na úrovni A a AA.</p>
+    </div>
+  </footer>
+</body>
+</html>
