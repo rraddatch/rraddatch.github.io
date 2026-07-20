@@ -1,8 +1,8 @@
 # Radoslav Ďurač
 
-> Slovenský odborník na digitálnu prístupnosť so zameraním na WCAG, EN 301 549 a prístupné PDF dokumenty (PDF/UA). Sídli v Bratislave, pracuje v slovenčine a angličtine.
+> Slovenský odborník na digitálnu prístupnosť a NVDA Certified Expert so zameraním na WCAG, EN 301 549 a prístupné PDF dokumenty (PDF/UA). Sídli v Bratislave, pracuje v slovenčine a angličtine.
 
-Radoslav Ďurač sa venuje prístupnosti webových sídel, mobilných aplikácií, newebových dokumentov a digitálnych výrobkov a služieb. Zameriava sa na auditovanie prístupnosti a na súlad so štandardmi WCAG 2.1 a 2.2, EN 301 549, WAI-ARIA a PDF/UA, ako aj s európskou a slovenskou legislatívou o prístupnosti (EAA, WAD, zákon č. 95/2019 Z. z. o ITVS, vyhláška č. 78/2020 Z. z.).
+Radoslav Ďurač sa venuje prístupnosti webových sídel, mobilných aplikácií, newebových dokumentov a digitálnych výrobkov a služieb. Zameriava sa na auditovanie prístupnosti a na súlad so štandardmi WCAG 2.1 a 2.2, EN 301 549, WAI-ARIA a PDF/UA, ako aj s európskou a slovenskou legislatívou o prístupnosti (EAA, WAD, zákon č. 95/2019 Z. z. o ITVS, vyhláška č. 78/2020 Z. z.). Je držiteľom certifikácie NVDA Certified Expert od NV Access, ktorá potvrdzuje expertnú znalosť čítača obrazovky NVDA.
 
 ## O autorovi
 
@@ -21,6 +21,9 @@ Radoslav Ďurač sa venuje prístupnosti webových sídel, mobilných aplikáci�
 
 - [WCAG 2.1](https://www.w3.org/TR/WCAG21/): Web Content Accessibility Guidelines 2.1
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/): Web Content Accessibility Guidelines 2.2
+
+## Certifikácie
+- [NVDA Certified Expert](https://certification.nvaccess.org/): certifikácia od NV Access potvrdzujúca expertnú znalosť čítača obrazovky NVDA
 
 ## Vzdelanie a členstvá
 
