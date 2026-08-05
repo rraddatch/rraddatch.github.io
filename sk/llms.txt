@@ -1,0 +1,31 @@
+# Radoslav Ďurač
+
+> Slovenský odborník na digitálnu prístupnosť a NVDA Certified Expert so zameraním na WCAG, EN 301 549 a prístupné PDF dokumenty (PDF/UA). Sídli v Bratislave, pracuje v slovenčine a angličtine. Táto stránka je dostupná aj v angličtine: https://rraddatch.github.io/ (llms.txt: https://rraddatch.github.io/llms.txt).
+
+Radoslav Ďurač sa venuje prístupnosti webových sídel, mobilných aplikácií, newebových dokumentov a digitálnych výrobkov a služieb. Zameriava sa na auditovanie prístupnosti a na súlad so štandardmi WCAG 2.1 a 2.2, EN 301 549, WAI-ARIA a PDF/UA, ako aj s európskou a slovenskou legislatívou o prístupnosti (EAA, WAD, zákon č. 95/2019 Z. z. o ITVS, vyhláška č. 78/2020 Z. z.). Je držiteľom certifikácie NVDA Certified Expert od NV Access, ktorá potvrdzuje expertnú znalosť čítača obrazovky NVDA.
+
+## O autorovi
+
+- [Domovská stránka](https://rraddatch.github.io/sk/): profil, oblasti expertízy, štandardy a projekty
+- [LinkedIn](https://www.linkedin.com/in/radoslav-durac-digital-accessibility-specialist/): profesijný profil
+- [GitHub](https://github.com/rraddatch): open source príspevky
+- [about.me](https://about.me/radoslav-durac): rozcestník odkazov
+- [CodePen](https://codepen.io/radoslavdurac): ukážky kódu
+
+## Open source a projekty
+
+- [Able Player](https://github.com/ableplayer/ableplayer): autor slovenského prekladu open source prístupného mediálneho prehrávača a oprava chyby vo funkcii getTranslationText(), príspevok je uvedený v changelogu verzie 5.0.0
+- [Autogram](https://github.com/slovensko-digital/autogram): spolupráca na prístupnosti aplikácie na elektronické podpisovanie dokumentov, jej mobilnej verzie a rozšírenia do prehliadača
+
+## Štandardy a legislatíva
+
+- [WCAG 2.1](https://www.w3.org/TR/WCAG21/): Web Content Accessibility Guidelines 2.1
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/): Web Content Accessibility Guidelines 2.2
+
+## Certifikácie
+- [NVDA Certified Expert](https://certification.nvaccess.org/): certifikácia od NV Access potvrdzujúca expertnú znalosť čítača obrazovky NVDA
+
+## Vzdelanie a členstvá
+
+- Univerzita Komenského v Bratislave, štúdium informačných štúdií
+- Slovenská User Experience Asociácia (SUXA)
