@@ -337,7 +337,7 @@
     <div class="wrap">
       <p class="eyebrow">Blog · Digitálna prístupnosť</p>
       <h1>Cesta medzi zdrojovým kódom a čítačom obrazovky</h1>
-      <p class="lede">Ako sa HTML mení na DOM, accessibility tree a napokon na hlasový alebo braillový výstup čítača obrazovky — a prečo to nie je len „čítanie HTML“.</p>
+      <p class="lede">Ako sa HTML mení na DOM, accessibility tree a napokon na hlasový alebo braillový výstup asistenčnej technológie — a prečo to nie je len „čítanie HTML“.</p>
       <p class="byline">
         <a href="https://rraddatch.github.io/sk/" rel="author">Radoslav Ďurač</a>
         <span class="sep">·</span>
@@ -906,7 +906,7 @@ paragraph
 
           <p>Asistenčnej technológii je teda exponovaný výsledný prístupný názov „Vyhľadať“. Čítač obrazovky nemusí sám analyzovať <code>aria-label</code> a rozhodovať, či ho uprednostní pred textom „Hľadať“. Toto rozhodnutie vyplýva už z pravidiel výpočtu prístupného názvu a čítač obrazovky následne pracuje s výslednou vlastnosťou objektu. Používateľovi tak môže oznámiť napríklad „Vyhľadať, tlačidlo“.</p>
 
-          <p>Tento príklad slúži výlučne na ilustráciu mechanizmu výpočtu prístupného názvu, nie ako odporúčaný spôsob zápisu. Nesúlad medzi viditeľným textom tlačidla a jeho prístupným názvom porušuje kritérium WCAG 2.5.3 Label in Name, keďže používateľ hlasového ovládania, ktorý sa spolieha na viditeľný text „Hľadať“, by príslušný príkaz nemusel nájsť. V praxi by preto mal prístupný názov obsahovať viditeľný text prvku, prípadne ho dopĺňať, nie mu úplne odporovať.</p>
+          <p>Tento príklad slúži výlučne na ilustráciu mechanizmu výpočtu prístupného názvu, nie ako odporúčaný spôsob zápisu. Nesúlad medzi viditeľným textom tlačidla a jeho prístupným názvom porušuje WCAG 2.2 <a href="https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html">Kritérium úspešnosti 2.5.3 Označenie v názve</a>, keďže používateľ hlasového ovládania, ktorý sa spolieha na viditeľný text „Hľadať“, by príslušný príkaz nemusel nájsť. V praxi by preto mal prístupný názov obsahovať viditeľný text prvku, prípadne ho dopĺňať, nie mu úplne odporovať.</p>
 
           <p>Tento príklad zároveň ukazuje, prečo nemožno fungovanie čítača obrazovky zjednodušiť na „čítanie HTML“. Informácia, ktorú asistenčná technológia dostane, môže byť výsledkom spracovania viacerých zdrojov a nemusí byť totožná s textom zobrazeným na obrazovke.</p>
 
