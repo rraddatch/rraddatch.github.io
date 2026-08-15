@@ -19,40 +19,4 @@
     <xhtml:link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/"/>
     <xhtml:link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/"/>
   </url>
-  <url>
-    <loc>https://rraddatch.github.io/blog/</loc>
-    <lastmod>2026-08-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://rraddatch.github.io/blog/"/>
-    <xhtml:link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/blog/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/blog/"/>
-  </url>
-  <url>
-    <loc>https://rraddatch.github.io/sk/blog/</loc>
-    <lastmod>2026-08-15</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://rraddatch.github.io/blog/"/>
-    <xhtml:link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/blog/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/blog/"/>
-  </url>
-  <url>
-    <loc>https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/</loc>
-    <lastmod>2026-08-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/"/>
-    <xhtml:link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/blog/cesta-medzi-zdrojovym-kodom-a-citacom-obrazovky/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/"/>
-  </url>
-  <url>
-    <loc>https://rraddatch.github.io/sk/blog/cesta-medzi-zdrojovym-kodom-a-citacom-obrazovky/</loc>
-    <lastmod>2026-08-15</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.7</priority>
-    <xhtml:link rel="alternate" hreflang="en" href="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/"/>
-    <xhtml:link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/blog/cesta-medzi-zdrojovym-kodom-a-citacom-obrazovky/"/>
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/"/>
-  </url>
 </urlset>
