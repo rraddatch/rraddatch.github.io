@@ -115,11 +115,13 @@
       padding: 0 1.4rem;
     }
 
+    .site-nav,
     .breadcrumb {
       padding: 0.9rem 0;
       border-bottom: 1px solid var(--line);
       font-size: 0.85rem;
     }
+    .site-nav ul,
     .breadcrumb ol {
       list-style: none;
       display: flex;
@@ -128,11 +130,13 @@
       margin: 0;
       padding: 0;
     }
+    .site-nav a,
     .breadcrumb a {
       font-weight: 700;
       color: var(--ink-soft);
       text-decoration-thickness: 1px;
     }
+    .site-nav [aria-current="page"],
     .breadcrumb [aria-current="page"] {
       color: var(--ink);
       font-weight: 700;
@@ -230,6 +234,13 @@
 </head>
 <body>
   <a class="skip-link" href="#obsah">Preskočiť na obsah</a>
+
+  <nav class="site-nav wrap" aria-label="Hlavná navigácia">
+    <ul>
+      <li><a href="https://rraddatch.github.io/sk/">Domov</a></li>
+      <li><span aria-current="page">Blog</span></li>
+    </ul>
+  </nav>
 
   <nav class="breadcrumb wrap" aria-label="Navigačná cesta">
     <ol>
