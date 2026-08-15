@@ -19,7 +19,8 @@
 
   <link rel="canonical" href="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
   <link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
-  <link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
+  <link rel="alternate" hreflang="en" href="https://rraddatch.github.io/blog/source-code-to-screen-reader/">
+  <link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/blog/source-code-to-screen-reader/">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
@@ -56,7 +57,8 @@
         "author": { "@id": "https://rraddatch.github.io/#person" },
         "publisher": { "@id": "https://rraddatch.github.io/#person" },
         "about": ["Web accessibility", "Accessibility tree", "WAI-ARIA", "Screen readers", "DOM"],
-        "keywords": "prístupnosť, DOM, accessibility tree, ARIA, čítač obrazovky, WCAG, accessibility API"
+        "keywords": "prístupnosť, DOM, accessibility tree, ARIA, čítač obrazovky, WCAG, accessibility API",
+        "workTranslation": { "@id": "https://rraddatch.github.io/blog/source-code-to-screen-reader/#article" }
       },
       {
         "@type": "BreadcrumbList",
@@ -123,6 +125,7 @@
       padding: 0 1.75rem;
     }
 
+    .lang-switch,
     .site-nav {
       padding: 0.9rem 0;
       padding-left: 1.75rem;
@@ -130,6 +133,7 @@
       border-bottom: 1px solid var(--line);
       font-size: 0.85rem;
     }
+    .lang-switch ul,
     .site-nav ul {
       list-style: none;
       display: flex;
@@ -138,11 +142,13 @@
       margin: 0;
       padding: 0;
     }
+    .lang-switch a,
     .site-nav a {
       font-weight: 700;
       color: var(--ink-soft);
       text-decoration-thickness: 1px;
     }
+    .lang-switch [aria-current="page"],
     .site-nav [aria-current="page"] {
       color: var(--ink);
       font-weight: 700;
@@ -320,6 +326,13 @@
     <ul>
       <li><a href="https://rraddatch.github.io/sk/">Domov</a></li>
       <li><a href="https://rraddatch.github.io/sk/blog/">Blog</a></li>
+    </ul>
+  </nav>
+
+  <nav class="lang-switch wrap" aria-label="Jazyk">
+    <ul>
+      <li><a href="https://rraddatch.github.io/blog/source-code-to-screen-reader/" hreflang="en" lang="en">English</a></li>
+      <li><span aria-current="page">Slovenčina</span></li>
     </ul>
   </nav>
 
