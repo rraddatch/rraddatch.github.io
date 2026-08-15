@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>The path between source code and the screen reader | Radoslav Ďurač</title>
+  <meta name="description" content="Why a screen reader doesn't read HTML directly: the path from source code through the DOM, the accessibility tree and platform accessibility APIs to speech and braille output.">
+  <meta name="author" content="Radoslav Ďurač">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="The path between source code and the screen reader">
+  <meta property="og:description" content="Why a screen reader doesn't read HTML directly: the path from source code through the DOM, the accessibility tree and platform accessibility APIs to speech and braille output.">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:url" content="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/">
+  <meta property="article:published_time" content="2026-08-15">
+  <meta property="article:author" content="https://rraddatch.github.io/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="The path between source code and the screen reader">
+  <meta name="twitter:description" content="Why a screen reader doesn't read HTML directly: the path from source code through the DOM, the accessibility tree and platform accessibility APIs to speech and braille output.">
+
+  <link rel="canonical" href="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/">
+  <link rel="alternate" hreflang="en" href="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/">
+  <link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/blog/cesta-medzi-zdrojovym-kodom-a-citacom-obrazovky/">
+  <link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
+
+  <!-- Structured data about the article and its author: read by search engines and language models -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://rraddatch.github.io/#person",
+        "name": "Radoslav Ďurač",
+        "url": "https://rraddatch.github.io/",
+        "sameAs": [
+          "https://github.com/rraddatch",
+          "https://www.linkedin.com/in/radoslav-durac-digital-accessibility-specialist/"
+        ]
+      },
+      {
+        "@type": "BlogPosting",
+        "@id": "https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/#article",
+        "headline": "The path between source code and the screen reader",
+        "description": "Why a screen reader doesn't read HTML directly: the path from source code through the DOM, the accessibility tree and platform accessibility APIs to speech and braille output.",
+        "inLanguage": "en",
+        "datePublished": "2026-08-15",
+        "dateModified": "2026-08-15",
+        "url": "https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/"
+        },
+        "isPartOf": { "@id": "https://rraddatch.github.io/blog/#blog" },
+        "author": { "@id": "https://rraddatch.github.io/#person" },
+        "publisher": { "@id": "https://rraddatch.github.io/#person" },
+        "about": ["Web accessibility", "Accessibility tree", "WAI-ARIA", "Screen readers", "DOM"],
+        "keywords": "accessibility, DOM, accessibility tree, ARIA, screen reader, WCAG, accessibility API",
+        "translationOfWork": { "@id": "https://rraddatch.github.io/sk/blog/cesta-medzi-zdrojovym-kodom-a-citacom-obrazovky/#article" }
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Home", "item": "https://rraddatch.github.io/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://rraddatch.github.io/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "The path between source code and the screen reader", "item": "https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #FBFAF7;
+      --bg-panel: #F2EFE8;
+      --ink: #16233A;
+      --ink-soft: #3A4658;
+      --accent: #A4243B;
+      --line: #D8D2C6;
+      --focus: #1B5FB0;
+      --code-fg: #F2EFE8;
+      --maxw: 46rem;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      text-underline-offset: 0.16em;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 0.75rem;
+      top: -4rem;
+      z-index: 10;
+      background: var(--ink);
+      color: #fff;
+      padding: 0.65rem 1rem;
+      border-radius: 0 0 0.4rem 0.4rem;
+      font-weight: 700;
+      transition: top 0.15s ease;
+    }
+    .skip-link:focus { top: 0; }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 1.75rem;
+    }
+
+    .lang-switch,
+    .site-nav {
+      padding: 0.9rem 0;
+      padding-left: 1.75rem;
+      padding-right: 1.75rem;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.85rem;
+    }
+    .lang-switch ul,
+    .site-nav ul {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.1rem;
+      margin: 0;
+      padding: 0;
+    }
+    .lang-switch a,
+    .site-nav a {
+      font-weight: 700;
+      color: var(--ink-soft);
+      text-decoration-thickness: 1px;
+    }
+    .lang-switch [aria-current="page"],
+    .site-nav [aria-current="page"] {
+      color: var(--ink);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.15rem;
+    }
+
+    header.post {
+      padding: clamp(2.4rem, 7vw, 4rem) 0 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 0 0 1rem;
+    }
+
+    h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(2rem, 6vw, 2.9rem);
+      line-height: 1.12;
+      margin: 0 0 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .lede {
+      font-size: clamp(1.08rem, 2.4vw, 1.22rem);
+      color: var(--ink-soft);
+      max-width: 38rem;
+      margin: 0 0 1.3rem;
+    }
+
+    .byline {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      margin: 0;
+    }
+    .byline a { color: var(--ink); font-weight: 700; }
+    .byline .sep { margin: 0 0.5em; }
+
+    .accent-rule {
+      width: 3.2rem;
+      height: 0.28rem;
+      background: var(--accent);
+      border: 0;
+      margin: 1.6rem 0 0;
+    }
+
+    main { padding: 2.6rem 0 1rem; }
+
+    article > p { margin: 0 0 1.1rem; }
+
+    section { margin: 2.8rem 0; }
+    section:first-of-type { margin-top: 0; }
+
+    h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      line-height: 1.25;
+      margin: 0 0 1.1rem;
+    }
+
+    h3 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: 1.18rem;
+      line-height: 1.3;
+      margin: 1.8rem 0 0.9rem;
+    }
+
+    p { margin: 0 0 1.1rem; }
+
+    strong { font-weight: 700; }
+
+    a { color: var(--accent); }
+
+    ul.plain-list, ol.plain-list { padding-left: 1.3rem; margin: 0 0 1.1rem; }
+    ul.plain-list li, ol.plain-list li { margin: 0.3rem 0; }
+
+    code {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      padding: 0.08em 0.35em;
+      border-radius: 0.3em;
+      font-size: 0.9em;
+      word-break: break-word;
+    }
+
+    pre {
+      background: var(--ink);
+      color: var(--code-fg);
+      padding: 1rem 1.2rem;
+      border-radius: 0.6rem;
+      overflow-x: auto;
+      margin: 0 0 1.3rem;
+      line-height: 1.55;
+    }
+    pre code {
+      background: none;
+      border: 0;
+      color: inherit;
+      padding: 0;
+      font-size: 0.85rem;
+      white-space: pre;
+    }
+
+    figure.diagram {
+      margin: 0 0 1.6rem;
+    }
+    .diagram-frame {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 0.6rem;
+      padding: 1.2rem;
+      color: var(--ink);
+    }
+    .diagram-frame svg,
+    .diagram-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    figcaption {
+      margin-top: 0.6rem;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    nav.toc {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 0.7rem;
+      padding: 1.3rem 1.5rem 1.4rem;
+      margin: 2.2rem 0 3rem;
+    }
+    nav.toc h2 {
+      font-size: 1.05rem;
+      margin: 0 0 0.8rem;
+    }
+    nav.toc ul {
+      list-style: none;
+      margin: 0;
+      padding-left: 0.2rem;
+    }
+    nav.toc li { margin: 0.35rem 0; }
+    nav.toc ul ul {
+      margin-top: 0.35rem;
+      padding-left: 1.2rem;
+    }
+    nav.toc a { font-weight: 700; }
+
+    footer.site {
+      margin-top: 3rem;
+      padding: 2.4rem 0 3.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+    footer.site p { margin: 0 0 0.4rem; }
+    footer.site a { font-weight: 700; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#content">Skip to content</a>
+
+  <nav class="site-nav wrap" aria-label="Main navigation">
+    <ul>
+      <li><a href="https://rraddatch.github.io/">Home</a></li>
+      <li><a href="https://rraddatch.github.io/blog/">Blog</a></li>
+    </ul>
+  </nav>
+
+  <nav class="lang-switch wrap" aria-label="Language">
+    <ul>
+      <li><span aria-current="page">English</span></li>
+      <li><a href="https://rraddatch.github.io/sk/blog/cesta-medzi-zdrojovym-kodom-a-citacom-obrazovky/" hreflang="sk" lang="sk">Slovenčina</a></li>
+    </ul>
+  </nav>
+
+  <header class="post">
+    <div class="wrap">
+      <p class="eyebrow">Blog <span aria-hidden="true">·</span> Digital accessibility</p>
+      <h1>The path between source code and the screen reader</h1>
+      <p class="lede">How HTML turns into the DOM, the accessibility tree, and finally into a screen reader's speech or braille output — and why that's not just "reading HTML".</p>
+      <p class="byline">
+        <a href="https://rraddatch.github.io/" rel="author">Radoslav Ďurač</a>
+        <span aria-hidden="true" class="sep">·</span>
+        <time datetime="2026-08-15">August 15, 2026</time>
+        <span aria-hidden="true" class="sep">·</span>
+        about 20 min read
+      </p>
+      <hr class="accent-rule" aria-hidden="true">
+    </div>
+  </header>
+
+  <main id="content">
+    <div class="wrap">
+      <article>
+
+        <p>When a user works with a web page using a screen reader, it can look as if the assistive technology simply reads the HTML document. In reality, the path an information takes from the source code to its final presentation to the user through assistive technology is considerably more complex.</p>
+
+        <p>A screen reader generally doesn't work directly with the page's source HTML. Between the HTML document and the information the user ultimately receives, there are several layers. The browser parses the HTML and builds the <span lang="en">Document Object Model</span>, or DOM. Based on the DOM, the native semantics of HTML, ARIA, CSS and other information, it builds a representation intended for accessibility. It then maps that representation onto the accessibility mechanisms of the specific platform, through which the assistive technology accesses the information.</p>
+
+        <p>The assistive technology finally interprets the information it receives and presents it to the user, for example through speech or braille output.</p>
+
+        <p>Understanding this path has practical value for accessibility development and testing. It helps explain why an element can be present in the DOM without being exposed to assistive technologies, why the resulting accessibility representation can contain different information than the HTML source itself, or why the same implementation can behave differently across different combinations of browser, operating system and screen reader.</p>
+
+        <p><strong>The goal of this article is to describe the path an information takes from HTML code through the DOM, the accessibility representation and platform accessibility APIs to the screen reader and its output to the user.</strong> This isn't a detailed account of how any specific browser or screen reader is implemented, but an explanation of the individual layers and their role in the overall process. Along the way, concrete examples show how HTML, ARIA and other attributes can affect the information that ultimately reaches assistive technologies.</p>
+
+        <nav class="toc" aria-labelledby="toc-heading">
+          <h2 id="toc-heading">Contents</h2>
+          <ul>
+            <li><a href="#dom">1. HTML becomes the DOM</a></li>
+            <li><a href="#accessibility-tree">2. The DOM produces the accessibility representation</a>
+              <ul>
+                <li><a href="#dom-vs-tree">2.1 Not everything in the DOM has to be exposed in the accessibility tree</a></li>
+              </ul>
+            </li>
+            <li><a href="#accessible-name">3. The accessible name isn't always the text we see in HTML</a>
+              <ul>
+                <li><a href="#name-vs-description">3.1 The accessible name and the accessible description aren't the same thing</a></li>
+              </ul>
+            </li>
+            <li><a href="#accessibility-api">4. Accessibility APIs connect the browser to the operating system</a></li>
+            <li><a href="#multi-process-browser">5. In a modern browser, the whole process doesn't have to happen in a single process</a></li>
+            <li><a href="#interpretation">6. The screen reader further interprets the information it receives</a></li>
+            <li><a href="#output">7. The result isn't only synthesized speech</a>
+              <ul>
+                <li><a href="#speech-output">Speech output</a></li>
+                <li><a href="#braille-output">Braille output</a></li>
+                <li><a href="#information-vs-presentation">Information and its presentation aren't the same thing</a></li>
+              </ul>
+            </li>
+            <li><a href="#quality-of-the-chain">8. The quality of the whole chain starts in the code</a>
+              <ul>
+                <li><a href="#rule-1">8.1 Prefer native HTML elements (1st rule of ARIA use)</a></li>
+                <li><a href="#rule-2">8.2 Preserve the native semantics of HTML elements (2nd rule of ARIA use)</a></li>
+                <li><a href="#rule-3">8.3 Ensure keyboard operability of interactive ARIA components (3rd rule of ARIA use)</a></li>
+                <li><a href="#rule-4">8.4 Expose focusable elements to assistive technologies (4th rule of ARIA use)</a></li>
+                <li><a href="#rule-5">8.5 Give interactive elements an accessible name (5th rule of ARIA use)</a></li>
+                <li><a href="#native-semantics">8.6 Prefer native semantics and behaviour over a custom implementation</a></li>
+              </ul>
+            </li>
+          </ul>
+        </nav>
+
+        <section aria-labelledby="dom">
+          <h2 id="dom">1. HTML becomes the DOM</h2>
+
+          <p>The first important step is the browser's processing of the HTML document. A browser doesn't treat HTML as plain text. While processing it, it builds a <strong>Document Object Model</strong>, or DOM for short. This model is defined by the <a href="https://dom.spec.whatwg.org/">DOM Standard</a>.</p>
+
+          <p>The DOM is a programmatic representation of the document, arranged as a tree structure. Individual HTML elements become nodes within it, connected by hierarchical relationships. This representation also includes text nodes and information associated with each element.</p>
+
+          <p>Consider a simple document:</p>
+
+          <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+  &lt;head&gt;
+    &lt;title&gt;My document&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Heading&lt;/h1&gt;
+    &lt;p&gt;Paragraph&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+          <p>The browser builds a tree structure from it. The <code>Document</code> object contains the root element <code>html</code>. The <code>html</code> element has, in this example, two direct children, <code>head</code> and <code>body</code>. The <code>head</code> element contains <code>title</code>, whose text content is "My document". The <code>body</code> element contains an <code>h1</code> element with the text "Heading" and a <code>p</code> element with the text "Paragraph".</p>
+
+          <figure class="diagram">
+            <div class="diagram-frame">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   viewBox="0 0 1200 820"
+                   role="graphics-document"
+                   aria-labelledby="dom-title dom-desc">
+
+                <title id="dom-title">DOM tree of the example HTML document</title>
+                <desc id="dom-desc">
+                  The diagram shows the hierarchical DOM structure created from the HTML document.
+                  The root object is Document. Its child is the html element with a lang attribute equal to en.
+                  The html element has two direct children: head and body.
+                  The head element contains a title element, which contains the text node My document.
+                  The body element contains an h1 element with the text node Heading and a p element with the text node Paragraph.
+                  Solid arrows represent the parent-child relationship.
+                  Text nodes are visually distinguished by an oval shape and a dashed outline.
+                </desc>
+
+                <defs>
+                  <marker id="dom-arrow"
+                          viewBox="0 0 10 10"
+                          refX="9"
+                          refY="5"
+                          markerWidth="8"
+                          markerHeight="8"
+                          orient="auto">
+                    <path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/>
+                  </marker>
+
+                  <style>
+                    #dom-diagram text {
+                      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+                      fill: currentColor;
+                    }
+                    #dom-diagram .document-node { fill: white; stroke: currentColor; stroke-width: 4; }
+                    #dom-diagram .document-inner { fill: none; stroke: currentColor; stroke-width: 1.5; }
+                    #dom-diagram .element-node { fill: white; stroke: currentColor; stroke-width: 3; }
+                    #dom-diagram .text-node { fill: white; stroke: currentColor; stroke-width: 3; stroke-dasharray: 10 7; }
+                    #dom-diagram .edge { fill: none; stroke: currentColor; stroke-width: 3; marker-end: url(#dom-arrow); }
+                    #dom-diagram .node-title { font-size: 27px; font-weight: 700; }
+                    #dom-diagram .attribute { font-size: 19px; }
+                    #dom-diagram .text-label { font-size: 21px; font-weight: 600; }
+                  </style>
+                </defs>
+
+                <g id="dom-diagram">
+
+                <!-- Edges are decorative; their meaning is described on the objects and in the SVG description. -->
+                <g aria-hidden="true">
+                  <path class="edge" d="M600 130 L600 190"/>
+                  <path class="edge" d="M600 310 L600 365 L300 365 L300 420"/>
+                  <path class="edge" d="M600 310 L600 365 L900 365 L900 420"/>
+                  <path class="edge" d="M300 520 L300 570"/>
+                  <path class="edge" d="M900 520 L900 565 L760 565 L760 610"/>
+                  <path class="edge" d="M900 520 L900 565 L1040 565 L1040 610"/>
+                  <path class="edge" d="M300 690 L300 725"/>
+                  <path class="edge" d="M760 690 L760 725"/>
+                  <path class="edge" d="M1040 690 L1040 725"/>
+                </g>
+
+                <!-- Document -->
+                <g role="graphics-object" aria-labelledby="document-title document-desc">
+                  <title id="document-title">Document</title>
+                  <desc id="document-desc">Root object of the DOM. Its direct child is the html element.</desc>
+                  <rect class="document-node" x="485" y="40" width="230" height="90" rx="16"/>
+                  <rect class="document-inner" x="495" y="50" width="210" height="70" rx="11"/>
+                  <text class="node-title" x="600" y="95" text-anchor="middle">Document</text>
+                </g>
+
+                <!-- HTML -->
+                <g role="graphics-object" aria-labelledby="html-title html-desc">
+                  <title id="html-title">The html element</title>
+                  <desc id="html-desc">The html element is a child of the Document object. It has a lang attribute with the value en. Its direct children are the head and body elements.</desc>
+                  <rect class="element-node" x="475" y="190" width="250" height="120" rx="16"/>
+                  <text class="node-title" x="600" y="235" text-anchor="middle">html</text>
+                  <line x1="505" y1="255" x2="695" y2="255" stroke="currentColor" stroke-width="2"/>
+                  <text class="attribute" x="600" y="290" text-anchor="middle">lang="en"</text>
+                </g>
+
+                <!-- HEAD -->
+                <g role="graphics-object" aria-labelledby="head-title head-desc">
+                  <title id="head-title">The head element</title>
+                  <desc id="head-desc">The head element is a child of the html element. Its direct child is the title element.</desc>
+                  <rect class="element-node" x="190" y="420" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="300" y="480" text-anchor="middle">head</text>
+                </g>
+
+                <!-- BODY -->
+                <g role="graphics-object" aria-labelledby="body-title body-desc">
+                  <title id="body-title">The body element</title>
+                  <desc id="body-desc">The body element is a child of the html element. Its direct children are the h1 and p elements.</desc>
+                  <rect class="element-node" x="790" y="420" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="900" y="480" text-anchor="middle">body</text>
+                </g>
+
+                <!-- TITLE -->
+                <g role="graphics-object" aria-labelledby="title-title title-desc">
+                  <title id="title-title">The title element</title>
+                  <desc id="title-desc">The title element is a child of the head element. It contains the text node My document.</desc>
+                  <rect class="element-node" x="190" y="590" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="300" y="650" text-anchor="middle">title</text>
+                </g>
+
+                <!-- H1 -->
+                <g role="graphics-object" aria-labelledby="h1-title h1-desc">
+                  <title id="h1-title">The h1 element</title>
+                  <desc id="h1-desc">The h1 element is a child of the body element. It contains the text node Heading.</desc>
+                  <rect class="element-node" x="650" y="590" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="760" y="650" text-anchor="middle">h1</text>
+                </g>
+
+                <!-- P -->
+                <g role="graphics-object" aria-labelledby="p-title p-desc">
+                  <title id="p-title">The p element</title>
+                  <desc id="p-desc">The p element is a child of the body element. It contains the text node Paragraph.</desc>
+                  <rect class="element-node" x="930" y="590" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="1040" y="650" text-anchor="middle">p</text>
+                </g>
+
+                <!-- Text nodes -->
+                <g role="graphics-object" aria-labelledby="text-document-title text-document-desc">
+                  <title id="text-document-title">Text node My document</title>
+                  <desc id="text-document-desc">Text content of the title element.</desc>
+                  <rect class="text-node" x="175" y="725" width="250" height="70" rx="35"/>
+                  <text class="text-label" x="300" y="768" text-anchor="middle">"My document"</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="text-heading-title text-heading-desc">
+                  <title id="text-heading-title">Text node Heading</title>
+                  <desc id="text-heading-desc">Text content of the h1 element.</desc>
+                  <rect class="text-node" x="650" y="725" width="220" height="70" rx="35"/>
+                  <text class="text-label" x="760" y="768" text-anchor="middle">"Heading"</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="text-paragraph-title text-paragraph-desc">
+                  <title id="text-paragraph-title">Text node Paragraph</title>
+                  <desc id="text-paragraph-desc">Text content of the p element.</desc>
+                  <rect class="text-node" x="930" y="725" width="220" height="70" rx="35"/>
+                  <text class="text-label" x="1040" y="768" text-anchor="middle">"Paragraph"</text>
+                </g>
+
+                </g>
+              </svg>
+            </div>
+            <figcaption>DOM diagram of the example HTML document.</figcaption>
+          </figure>
+
+          <p>So the DOM doesn't just capture the elements themselves. It also captures their hierarchical relationships. Every node can have a parent, children, and siblings at the same level of the tree. Text found inside elements is represented by text nodes.</p>
+
+          <p>The DOM is also a live representation of the document. JavaScript can change its content, add new elements, remove existing elements, or change their attributes. The current state of the DOM therefore doesn't have to match the original HTML the server sent to the browser.</p>
+
+          <p>It's important, though, to distinguish between the DOM and the representation intended for accessibility. <strong>The DOM is not the accessibility tree.</strong></p>
+
+          <p>The DOM contains a lot of information needed for the page to function that isn't necessarily relevant to assistive technologies. Conversely, some information important for accessibility only arises during further processing of the document.</p>
+        </section>
+
+        <section aria-labelledby="accessibility-tree">
+          <h2 id="accessibility-tree">2. The DOM produces the accessibility representation</h2>
+
+          <p>Based on the DOM, the native semantics of HTML, ARIA properties, CSS and other information, an internal representation of the content relevant to accessibility is created. In common terminology this is referred to as the <span lang="en">accessibility tree</span>.</p>
+
+          <p>The accessibility tree, however, isn't a simple copy of the DOM. It can be understood, in simplified terms, as a tree of objects relevant from an accessibility point of view. Individual objects can carry information such as their role, name, value, state, level, or relationships to other objects.</p>
+
+          <p>Native HTML semantics automatically provide a large part of this information. The <code>&lt;button&gt;</code> element provides button semantics. The <code>&lt;h1&gt;</code> element represents a level-one heading. A checkbox created with <code>&lt;input type="checkbox"&gt;</code> provides checkbox semantics and also allows its current state to be exposed.</p>
+
+          <p>CSS, meanwhile, can also decide whether an element appears in the accessibility tree at all. An element with <code>display: none</code> or <code>visibility: hidden</code> is excluded from the accessibility representation entirely, in the same way that its visual display and keyboard accessibility are also negated. This is a fundamental difference from <code>aria-hidden="true"</code>, which we'll cover below: <code>aria-hidden</code> only hides an element from assistive technologies, while the element remains visually displayed and can still be focusable via the keyboard. This distinction is a common source of confusion during accessibility testing.</p>
+
+          <p>The way HTML elements and attributes are mapped onto platform accessibility APIs is described by <a href="https://www.w3.org/TR/html-aam-1.0/">HTML Accessibility API Mappings</a>. More general mapping rules for web technologies onto platform accessibility APIs are described by <a href="https://www.w3.org/TR/core-aam-1.2/">Core Accessibility API Mappings</a>.</p>
+
+          <figure class="diagram">
+            <div class="diagram-frame">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   viewBox="0 0 1200 720"
+                   role="graphics-document"
+                   aria-labelledby="tree-title tree-desc">
+
+                <title id="tree-title">Accessibility tree of the example HTML document</title>
+                <desc id="tree-desc">
+                  The diagram shows a simplified representation of the accessibility tree
+                  for an HTML document with the title My document, a level-one heading Heading, and a paragraph Paragraph.
+                  The root object is document with the name My document.
+                  Document has two children.
+                  The first is heading level 1 with the name Heading and a text leaf child named Heading.
+                  The second is paragraph with an empty name and a text leaf child named Paragraph.
+                  Solid arrows represent the hierarchical parent-child relationship.
+                </desc>
+
+                <defs>
+                  <marker id="tree-arrow"
+                          viewBox="0 0 10 10"
+                          refX="9"
+                          refY="5"
+                          markerWidth="8"
+                          markerHeight="8"
+                          orient="auto">
+                    <path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/>
+                  </marker>
+
+                  <style>
+                    #a11y-tree text {
+                      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+                      fill: currentColor;
+                    }
+                    #a11y-tree .root { fill: white; stroke: currentColor; stroke-width: 4; }
+                    #a11y-tree .root-inner { fill: none; stroke: currentColor; stroke-width: 1.5; }
+                    #a11y-tree .node { fill: white; stroke: currentColor; stroke-width: 3; }
+                    #a11y-tree .leaf { fill: white; stroke: currentColor; stroke-width: 3; stroke-dasharray: 10 7; }
+                    #a11y-tree .edge { fill: none; stroke: currentColor; stroke-width: 3; marker-end: url(#tree-arrow); }
+                    #a11y-tree .title { font-size: 28px; font-weight: 700; }
+                    #a11y-tree .property { font-size: 20px; }
+                    #a11y-tree .leaf-title { font-size: 22px; font-weight: 700; }
+                    #a11y-tree .leaf-name { font-size: 20px; }
+                  </style>
+                </defs>
+
+                <g id="a11y-tree">
+
+                <g aria-hidden="true">
+                  <path class="edge" d="M600 150 L600 220 L350 220 L350 300"/>
+                  <path class="edge" d="M600 150 L600 220 L850 220 L850 300"/>
+                  <path class="edge" d="M350 445 L350 520"/>
+                  <path class="edge" d="M850 445 L850 520"/>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="a11y-document-title a11y-document-desc">
+                  <title id="a11y-document-title">document</title>
+                  <desc id="a11y-document-desc">Root object of the accessibility tree. Its name is My document. Its direct children are heading level 1 and paragraph.</desc>
+                  <rect class="root" x="450" y="40" width="300" height="110" rx="16"/>
+                  <rect class="root-inner" x="460" y="50" width="280" height="90" rx="11"/>
+                  <text class="title" x="600" y="88" text-anchor="middle">document</text>
+                  <text class="property" x="600" y="122" text-anchor="middle">name: "My document"</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="a11y-heading-title a11y-heading-desc">
+                  <title id="a11y-heading-title">heading level 1</title>
+                  <desc id="a11y-heading-desc">The heading object is a child of the document object. It has level 1 and the name Heading. Its child is a text leaf named Heading.</desc>
+                  <rect class="node" x="180" y="300" width="340" height="145" rx="16"/>
+                  <text class="title" x="350" y="345" text-anchor="middle">heading</text>
+                  <text class="property" x="350" y="380" text-anchor="middle">level: 1</text>
+                  <text class="property" x="350" y="415" text-anchor="middle">name: "Heading"</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="a11y-paragraph-title a11y-paragraph-desc">
+                  <title id="a11y-paragraph-title">paragraph</title>
+                  <desc id="a11y-paragraph-desc">The paragraph object is a child of the document object. It has an empty name. Its child is a text leaf named Paragraph.</desc>
+                  <rect class="node" x="680" y="300" width="340" height="145" rx="16"/>
+                  <text class="title" x="850" y="355" text-anchor="middle">paragraph</text>
+                  <text class="property" x="850" y="400" text-anchor="middle">name: ""</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="a11y-heading-leaf-title a11y-heading-leaf-desc">
+                  <title id="a11y-heading-leaf-title">text leaf Heading</title>
+                  <desc id="a11y-heading-leaf-desc">The text leaf object is a child of the heading object. Its name is Heading.</desc>
+                  <rect class="leaf" x="225" y="520" width="250" height="105" rx="52"/>
+                  <text class="leaf-title" x="350" y="562" text-anchor="middle">text leaf</text>
+                  <text class="leaf-name" x="350" y="596" text-anchor="middle">name: "Heading"</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="a11y-paragraph-leaf-title a11y-paragraph-leaf-desc">
+                  <title id="a11y-paragraph-leaf-title">text leaf Paragraph</title>
+                  <desc id="a11y-paragraph-leaf-desc">The text leaf object is a child of the paragraph object. Its name is Paragraph.</desc>
+                  <rect class="leaf" x="725" y="520" width="250" height="105" rx="52"/>
+                  <text class="leaf-title" x="850" y="562" text-anchor="middle">text leaf</text>
+                  <text class="leaf-name" x="850" y="596" text-anchor="middle">name: "Paragraph"</text>
+                </g>
+
+                </g>
+              </svg>
+            </div>
+            <figcaption>Accessibility tree diagram with the <code>document</code>, <code>heading</code> and <code>paragraph</code> objects.</figcaption>
+          </figure>
+
+          <p>The root object <code>document</code> can carry the name "My document", derived from the document's title. In the diagram it's also shown with the language <code>en</code>, derived from <code>lang="en"</code>.</p>
+
+          <p>Under the <code>document</code> object, the diagram shows objects representing the heading and the paragraph.</p>
+
+          <p>The <code>heading</code> object has level <code>1</code> and the name "Heading". Beneath it there's also a text object with the text "Heading".</p>
+
+          <p>For the <code>paragraph</code> object, the situation is different. The object itself can have an empty accessible name, even though the paragraph contains the text "Paragraph". At first glance this might seem odd, since for the <code>heading</code> object we saw the name "Heading".</p>
+
+          <p>The reason is that <strong>an element's text content and an object's accessible name aren't the same thing</strong>. The fact that there is text between an HTML element's opening and closing tags doesn't automatically mean that text becomes the accessible name of that object.</p>
+
+          <p>What sources an object can get its accessible name from is decided, among other things, by its role and the accessible name computation rules. For individual roles, WAI-ARIA determines whether the name may come from the author or from the content. The computation itself is described by the <a href="https://www.w3.org/TR/accname-1.2/">Accessible Name and Description Computation</a> specification.</p>
+
+          <p>For a heading, its text is also what identifies the heading. For the element:</p>
+
+          <pre><code>&lt;h1&gt;Heading&lt;/h1&gt;</code></pre>
+
+          <p>the result can therefore be an object with the role <code>heading</code>, level <code>1</code>, and accessible name "Heading". The text "Heading" can participate in computing the object's name.</p>
+
+          <p>For a paragraph:</p>
+
+          <pre><code>&lt;p&gt;Paragraph&lt;/p&gt;</code></pre>
+
+          <p>the text "Paragraph" plays a different role. It's primarily the <strong>paragraph's text content, not its label</strong>. The <code>paragraph</code> object itself therefore doesn't need to have the accessible name "Paragraph". Its text nonetheless remains available in the accessibility representation as text content.</p>
+
+          <p>We can picture the difference in simplified terms like this:</p>
+
+          <pre><code>&lt;h1&gt;Heading&lt;/h1&gt;
+
+heading
+  name: "Heading"
+  text: "Heading"</code></pre>
+
+          <p>whereas:</p>
+
+          <pre><code>&lt;p&gt;Paragraph&lt;/p&gt;
+
+paragraph
+  name: ""
+  text: "Paragraph"</code></pre>
+
+          <p><strong>An empty accessible name on the <code>paragraph</code> object therefore doesn't mean the paragraph is empty, or that its text isn't available to assistive technologies.</strong> It only means that, in this case, the text "Paragraph" doesn't represent the object's accessible name. The text content can be represented in the accessibility tree through a child text object and made available to assistive technologies that way.</p>
+
+          <p>This exact distinction is a good way to see why the accessibility tree can't be thought of as a DOM where HTML tags were simply renamed to roles. Building it involves the semantics of the individual elements and roles, and that semantics determines what properties the resulting objects will have and how their text content will be represented.</p>
+
+          <p>The diagram doesn't represent the one, normatively prescribed shape of the accessibility tree either. It's a simplified illustration of the principle. The actual tree structure and how individual objects are represented can vary depending on the browser, the platform, and the accessibility API used.</p>
+
+          <h3 id="dom-vs-tree">2.1 Not everything in the DOM has to be exposed in the accessibility tree</h3>
+
+          <p>The DOM and the accessibility tree can differ not only in structure but also in which parts of the document they contain. The DOM can contain elements needed for visual display, page layout, or the functioning of the user interface, which from an accessibility point of view aren't meant to convey a separate piece of information to the user. Such elements therefore don't need to be exposed to assistive technologies.</p>
+
+          <p>One mechanism for excluding content from the accessibility representation is the <code>aria-hidden="true"</code> attribute. By using it, the author specifies that a given element and its descendants should not be exposed through the accessibility API. The element still remains part of the DOM and can still be visually displayed on the page. Details of the <code>aria-hidden</code> property are defined by <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-hidden">WAI-ARIA</a>.</p>
+
+          <p>When using <code>aria-hidden="true"</code>, its effect on the element's descendants must also be taken into account. If a link, button, or other focusable element were located inside such a hidden section, it could remain reachable via the keyboard even though it isn't properly exposed to assistive technologies. <code>aria-hidden="true"</code> should therefore not be used on focusable elements or on their ancestors.</p>
+
+          <p>When testing accessibility, checking the DOM alone is therefore not enough. It's also necessary to verify the resulting accessibility representation and the information the browser exposes to assistive technologies through the platform accessibility API.</p>
+        </section>
+
+        <section aria-labelledby="accessible-name">
+          <h2 id="accessible-name">3. The accessible name isn't always the text we see in HTML</h2>
+
+          <p>The accessible name is a text value that lets a user interface object be identified by assistive technologies. It doesn't necessarily come from a single specific HTML attribute or directly from an element's text content.</p>
+
+          <p>The browser computes it according to rules defined in the <a href="https://www.w3.org/TR/accname-1.2/">Accessible Name and Description Computation</a> specification. Depending on the specific element and its role, various sources can feed into the computation.</p>
+
+          <p>For a form field, the name can come, for example, from an associated <code>&lt;label&gt;</code> element:</p>
+
+          <pre><code>&lt;label for="email"&gt;Email&lt;/label&gt;
+
+&lt;input
+  id="email"
+  type="email"
+  autocomplete="email"&gt;</code></pre>
+
+          <p>In this case, the <code>&lt;label&gt;</code> element gives the field the accessible name "Email".</p>
+
+          <p>For a button, the name can come directly from its text content:</p>
+
+          <pre><code>&lt;button&gt;Submit&lt;/button&gt;</code></pre>
+
+          <p>The button's accessible name in this case is "Submit". Other sources can also feed into its computation, such as <code>aria-labelledby</code> or <code>aria-label</code>, with the computation rules also determining their relative priority.</p>
+
+          <p>This can be shown well on a button whose visible text differs from the value of <code>aria-label</code>:</p>
+
+          <pre><code>&lt;button aria-label="Find"&gt;
+  Search
+&lt;/button&gt;</code></pre>
+
+          <p>The button contains the visible text "Search", which, without any other source, would provide its accessible name. In this case, however, the <code>aria-label</code> attribute is used, which takes priority over the button's text content when computing the accessible name. We can picture the result in simplified terms like this:</p>
+
+          <pre><code>button
+  name: "Find"</code></pre>
+
+          <p>So the resulting accessible name "Find" is what's exposed to the assistive technology. The screen reader doesn't need to analyze <code>aria-label</code> itself and decide whether to prioritize it over the text "Search". That decision is already built into the accessible name computation rules, and the screen reader then works with the object's resulting property. It might announce something like "Find, button" to the user.</p>
+
+          <p>This example is purely to illustrate the accessible name computation mechanism, not a recommended way to write markup. A mismatch between a control's visible text and its accessible name violates WCAG 2.2 <a href="https://www.w3.org/WAI/WCAG22/Understanding/label-in-name.html">Success Criterion 2.5.3 Label in Name</a>, since a voice-control user relying on the visible text "Search" might not be able to find the corresponding command. In practice, the accessible name should therefore contain the element's visible text, or at least extend it, rather than contradict it outright.</p>
+
+          <p>This example also shows why a screen reader's behaviour can't be reduced to "reading HTML". The information an assistive technology receives can be the result of processing multiple sources, and it doesn't have to match the text shown on screen.</p>
+
+          <p>The resulting representation can also be inspected in browser developer tools.</p>
+
+          <figure class="diagram">
+            <div class="diagram-frame">
+              <img src="img/firefox-devtools.png" width="947" height="848" loading="lazy" decoding="async" alt="The Accessibility panel in Firefox DevTools with the heading (level 1) object selected: role “heading”, name “Header”, source element h1, and other properties and states.">
+            </div>
+            <figcaption>The Accessibility panel in Firefox DevTools with the computed role, name, states and other properties for the heading object.</figcaption>
+          </figure>
+
+          <p>A view like this lets you check, during diagnosis, not just the HTML itself but also the resulting role, accessible name, description, states, and other properties the browser computed and exposes for the object.</p>
+
+          <h3 id="name-vs-description">3.1 The accessible name and the accessible description aren't the same thing</h3>
+
+          <p>Alongside the accessible name, an object can also have an <span lang="en">accessible description</span>. These are two separate properties of the object in the accessibility representation, and each has a different role.</p>
+
+          <p><strong>The accessible description provides supplementary information about an already-identified element.</strong> It might, for example, explain the required input format, the conditions for filling it in, or other information the user needs when working with the element. It doesn't replace the accessible name — it complements it.</p>
+
+          <p>Consider a form field:</p>
+
+          <pre><code>&lt;label for="password"&gt;Password&lt;/label&gt;
+
+&lt;input
+  id="password"
+  type="password"
+  autocomplete="current-password"
+  aria-describedby="password-help"&gt;
+
+&lt;p id="password-help"&gt;
+  Password must contain at least 12 characters.
+&lt;/p&gt;</code></pre>
+
+          <p>In this case, the text "Password" from the associated <code>&lt;label&gt;</code> element is used to compute the field's <strong>accessible name</strong>.</p>
+
+          <p>The <code>aria-describedby="password-help"</code> attribute creates a relationship between the input field and the element with <code>id="password-help"</code>. The text "Password must contain at least 12 characters." is therefore used to compute the field's <strong>accessible description</strong>.</p>
+
+          <p>We can picture the resulting object representing the form field in simplified terms like this:</p>
+
+          <pre><code>textbox
+  name: "Password"
+  description: "Password must contain at least 12 characters."</code></pre>
+
+          <p>So the text "Password must contain at least 12 characters." doesn't become part of the accessible name just because a screen reader might announce it together with the field's name. <strong>The accessible name and the accessible description remain separate properties of the object from the point of view of the accessibility representation.</strong></p>
+
+          <p>This matters for testing too. If a screen reader, on focusing a field, announces something like "Password, edit field, Password must contain at least 12 characters", it may not be obvious from the speech output alone which property each piece of information came from. During diagnosis, it's therefore useful to check the resulting accessible name and accessible description directly.</p>
+
+          <p>The computation method for both properties is defined by the <a href="https://www.w3.org/TR/accname-1.2/">Accessible Name and Description Computation</a> specification.</p>
+
+          <p>Role, accessible name and description are only part of the information an object can carry. Depending on the specific element, the accessibility representation can also contain its value, state, level, language, or relationships to other objects.</p>
+        </section>
+
+        <section aria-labelledby="accessibility-api">
+          <h2 id="accessibility-api">4. Accessibility APIs connect the browser to the operating system</h2>
+
+          <p>The accessibility tree contains information about web content in a form relevant to accessibility. A screen reader, however, doesn't need to know about the DOM, or the way a specific browser internally builds and maintains this representation. It needs access to information about individual objects, such as their role, accessible name, state, or relationships to other objects.</p>
+
+          <p><strong>Platform accessibility APIs</strong> exist to convey this information.</p>
+
+          <p>API is short for "Application Programming Interface". It's an interface that allows communication between different parts of software. In the case of an accessibility API, the platform provides a mechanism through which applications can expose information about their user interface to assistive technologies.</p>
+
+          <p>Consider, for example, a button that controls the display of a menu:</p>
+
+          <pre><code>&lt;button aria-expanded="false" aria-controls="menu"&gt;
+  Menu
+&lt;/button&gt;</code></pre>
+
+          <p>Based on the native semantics of the <code>button</code> element, its text content, and its ARIA attributes, the browser can build an object we can picture in simplified terms like this:</p>
+
+          <pre><code>button
+  name: "Menu"
+  expanded: false
+  controls: menu</code></pre>
+
+          <p>The individual pieces of information come from different parts of the HTML. The <code>button</code> element provides the native button role, the text "Menu" is used to compute its accessible name, and <code>aria-expanded="false"</code> expresses that the controlled content is currently collapsed. The <code>aria-controls="menu"</code> attribute also creates a relationship to the element with <code>id="menu"</code>, expressing that the button controls that content.</p>
+
+          <p>For assistive technologies to work with this information, the browser <strong>maps it onto the corresponding objects, properties, states and relationships of the specific platform's accessibility API</strong>. The button's role, its name, its expanded state, and its relationship to the content it controls all need to be represented in a way the given platform supports.</p>
+
+          <p>This mapping is necessary because web technologies and operating systems don't share a single common accessibility model. HTML and ARIA define the semantics of web content, while individual platforms have their own interfaces and their own ways of representing accessible objects and their properties.</p>
+
+          <p>There is therefore no single accessibility API shared across all platforms. On Windows, for example, <a href="https://learn.microsoft.com/en-us/windows/win32/winauto/entry-uiauto-win32">Microsoft UI Automation</a> is used; Apple's platforms provide their own <a href="https://developer.apple.com/documentation/accessibility">Accessibility API</a>; Linux desktop environments typically use <a href="https://docs.gtk.org/atspi2/">AT-SPI</a>; and Android provides its own <a href="https://developer.android.com/guide/topics/ui/accessibility">Accessibility framework</a>.</p>
+
+          <p>On Windows, it's actually more than a single API. Alongside UI Automation, the older <strong>IAccessible2</strong> has long been used for exposing web content, and it's what browsers like NVDA and JAWS rely on heavily when working with web content. Chromium therefore supports both mechanisms simultaneously on Windows, and the specific screen reader chooses which one it works with.</p>
+
+          <p>So the browser has to expose the same web content semantics in a way that matches the platform it's running on. This mapping doesn't just involve object roles — it also covers accessible names and descriptions, values, states, relationships, and other information relevant to accessibility.</p>
+
+          <p>The rules by which web technology semantics are translated into platform accessibility APIs are described by the Accessibility API Mappings specifications. <a href="https://www.w3.org/TR/core-aam-1.2/">Core Accessibility API Mappings</a> defines the general rules for mapping roles, states and properties, while <a href="https://www.w3.org/TR/html-aam-1.0/">HTML Accessibility API Mappings</a> describes the mapping of HTML's native semantics.</p>
+
+          <p>So the accessibility tree and platform accessibility APIs serve different purposes. <strong>The accessibility tree represents web content from an accessibility point of view, while an accessibility API provides the interface through which that semantics can be exposed to assistive technologies on a specific platform.</strong></p>
+        </section>
+
+        <section aria-labelledby="multi-process-browser">
+          <h2 id="multi-process-browser">5. In a modern browser, the whole process doesn't have to happen in a single process</h2>
+
+          <p>Modern browsers are multi-process applications. Web content, the browser's own user interface, and other parts of its functionality don't necessarily run in a single shared process.</p>
+
+          <p>This kind of separation is mainly related to security, stability, and the isolation of different parts of the browser. A failure or problem on one web page therefore doesn't necessarily affect the whole browser.</p>
+
+          <p>A multi-process architecture also has consequences for accessibility.</p>
+
+          <p>The information needed to build the accessibility representation arises while the web document is being processed. Assistive technology, however, works with information exposed through operating system mechanisms. The browser may therefore need to transfer accessibility information between its internal processes and keep it synchronized across them.</p>
+
+          <p>Chromium is a good example; its accessibility architecture is described in more detail in the <a href="https://chromium.googlesource.com/chromium/src/+/main/docs/accessibility/overview.md">Chromium Accessibility Overview</a> document.</p>
+
+          <p>One part of the browser may process the web document itself and build the information relevant to accessibility, while a different part exposes it through the operating system's accessibility API.</p>
+
+          <p>This doesn't mean that the entire DOM is simply sent to the assistive technology on every change. The browser maintains the necessary representations and updates the information that's relevant from an accessibility point of view.</p>
+
+          <p>If, for example, JavaScript changes an element's state:</p>
+
+          <pre><code>&lt;button aria-expanded="false" aria-controls="menu"&gt;
+  Menu
+&lt;/button&gt;</code></pre>
+
+          <p>to:</p>
+
+          <pre><code>&lt;button aria-expanded="true" aria-controls="menu"&gt;
+  Menu
+&lt;/button&gt;</code></pre>
+
+          <p>the change happens in the web document. The browser has to reflect it in its accessibility representation and make sure the object's new state is exposed through the relevant accessibility API as well.</p>
+
+          <p>Similarly, it may need to process a change to an object's accessible name, a form field's value, a checked state, keyboard focus, or dynamically inserted content.</p>
+
+          <p>Browsers use internal inter-process communication mechanisms to communicate between individual processes. Chromium, among other things, uses the <a href="https://chromium.googlesource.com/chromium/src/+/main/mojo/README.md">Mojo</a> infrastructure for this purpose.</p>
+
+          <p>Authors of web content don't need to know the details of this architecture. It is, however, important to know that between a change to HTML or the DOM and the information becoming available to assistive technology, there can be several further technical steps.</p>
+
+          <p>So an information can, along its path, pass through processing in the DOM, creation or updating of the accessibility representation, synchronization between parts of the browser, and mapping onto a platform accessibility API.</p>
+        </section>
+
+        <section aria-labelledby="interpretation">
+          <h2 id="interpretation">6. The screen reader further interprets the information it receives</h2>
+
+          <p>A screen reader generally doesn't start at the page's HTML source code. It works with information made available to it by the platform, based on the representation the browser built.</p>
+
+          <p>If, for example, a user is focused on a button:</p>
+
+          <pre><code>&lt;button&gt;Submit&lt;/button&gt;</code></pre>
+
+          <p>the screen reader might receive, through the accessibility mechanisms, information we can picture in simplified terms like this:</p>
+
+          <pre><code>role: button
+name: "Submit"
+focused: true</code></pre>
+
+          <p>This data still doesn't determine the exact sentence the user ultimately hears.</p>
+
+          <p>The screen reader has to <strong>interpret it and decide how to present it to the user</strong>. It can announce the element's name, its role, and, as needed, its state or other properties.</p>
+
+          <p>The output might have a meaning like:</p>
+
+          <pre><code>Submit, button</code></pre>
+
+          <p>The exact wording, however, isn't a property of the HTML or the accessibility tree. It depends on the screen reader, its localization, the user's settings, its mode of operation, and other circumstances.</p>
+
+          <p>This distinction matters. <strong>The accessibility tree doesn't contain a ready-made sentence for the screen reader to read.</strong> It contains structured information about objects. The screen reader builds the user-facing output from that information.</p>
+
+          <p>For an expandable button, it might, for example, have available:</p>
+
+          <pre><code>role: button
+name: "Menu"
+expanded: false</code></pre>
+
+          <p>From these properties it can build an output whose meaning is, for example:</p>
+
+          <pre><code>Menu, button, collapsed</code></pre>
+
+          <p>If the value of <code>expanded</code> changes to <code>true</code>, the screen reader might announce the new state to the user as "expanded". The way and the moment of that announcement, however, depend on the specific assistive technology.</p>
+
+          <p>A screen reader also doesn't just handle the presentation of the currently focused element. On top of the information exposed by the browser, it builds its own mechanisms for working with web content.</p>
+
+          <p>It might, for example, let the user:</p>
+
+          <ul class="plain-list">
+            <li>move between headings,</li>
+            <li>move between links,</li>
+            <li>search for form fields,</li>
+            <li>navigate between tables,</li>
+            <li>display a list of certain types of elements,</li>
+            <li>read text by character, word, or line,</li>
+            <li>work with content without keyboard focus moving to every element.</li>
+          </ul>
+
+          <p>This is why we also need to distinguish between the page's <strong>keyboard focus</strong> and the position where the user is currently located while reading content with a screen reader.</p>
+
+          <p>A user might, for example, move between headings or paragraphs, even though these elements themselves don't have to be focusable via the keyboard.</p>
+
+          <p>Related to this distinction is the announcement of content changes that aren't tied to a focus move, for example through <code>aria-live</code>. A region marked as <code>aria-live</code> can be announced by the screen reader to the user even when neither their focus nor their reading position is located in that part of the page. Here too, it's the specific assistive technology and its settings that determine the way and extent of such an announcement.</p>
+
+          <p>A screen reader can also let the user configure how much information is announced. Users can choose more detailed or more concise announcement of roles, states, and other properties.</p>
+
+          <p>The same object therefore doesn't have to be presented to different users in exactly the same way, even though the underlying information exposed by the browser stays the same.</p>
+
+          <p>When testing accessibility, it's therefore not a good idea to conflate the <strong>output of a specific screen reader</strong> with the accessibility representation itself. If a screen reader announces, or fails to announce, a particular piece of information, it's useful to distinguish whether:</p>
+
+          <ol class="plain-list">
+            <li>the information was correctly created in the HTML and the DOM in the first place,</li>
+            <li>it was correctly reflected in the accessibility representation,</li>
+            <li>it was correctly exposed through the accessibility API,</li>
+            <li>and only after that, how the specific assistive technology works with it.</li>
+          </ol>
+
+          <p>This kind of distinction helps you determine, during diagnosis, <strong>at which layer of the whole chain the problem is actually occurring</strong>.</p>
+
+          <p>Each of these layers can also be checked individually during diagnosis:</p>
+
+          <ul class="plain-list">
+            <li><strong>DOM</strong> – browser developer tools, the Elements panel.</li>
+            <li><strong>Accessibility representation</strong> – the Accessibility panel in browser developer tools, or tools like Accessibility Insights for Web.</li>
+            <li><strong>Platform accessibility API</strong> – for example Accessibility Insights for Windows or Inspect.exe on Windows, Accessibility Inspector on macOS.</li>
+            <li><strong>Assistive technology output</strong> – for example Speech Viewer or the log in NVDA, which shows what was actually announced to the user.</li>
+          </ul>
+
+          <p>If the result differs from expectations between two adjacent layers, the problem is most likely located right at the boundary between them.</p>
+        </section>
+
+        <section aria-labelledby="output">
+          <h2 id="output">7. The result isn't only synthesized speech</h2>
+
+          <p>The term "screen reader" can create the impression that its output is always a voice. Synthesized speech is indeed a very common way of presenting information, but it isn't the only possible output.</p>
+
+          <p>A screen reader works with structured information about objects and can then convey it to the user in different ways. Most commonly this means <strong>speech output, braille output, or a combination of the two</strong>.</p>
+
+          <h3 id="speech-output">Speech output</h3>
+
+          <p>For speech output, the screen reader prepares the information to be announced to the user and passes it to a speech synthesizer.</p>
+
+          <p>If it has, for example, the following object available:</p>
+
+          <pre><code>heading
+  level: 1
+  name: "Heading"</code></pre>
+
+          <p>it might convey information to the user whose meaning corresponds to something like:</p>
+
+          <pre><code>Heading, heading level 1</code></pre>
+
+          <p>The speech synthesizer then converts that information into audio form.</p>
+
+          <p>The resulting pronunciation can be influenced by several pieces of information. One of them is the language of the content.</p>
+
+          <p>If the document is correctly marked, for example:</p>
+
+          <pre><code>&lt;html lang="en"&gt;</code></pre>
+
+          <p>the language information can become part of the accessibility representation, and the assistive technology can use it to select the appropriate pronunciation or voice.</p>
+
+          <p>So an attribute that originates in the HTML document can end up affecting the resulting speech output.</p>
+
+          <h3 id="braille-output">Braille output</h3>
+
+          <p>Information doesn't have to be presented to the user by sound alone. A screen reader can also work together with a <strong>refreshable braille display</strong>.</p>
+
+          <p>A braille display is a hardware device made up of an array of braille cells with mechanically actuated pins. Individual pins rise and fall according to the characters being displayed, letting the user read the information by touch.</p>
+
+          <p>It's important to distinguish between the device and the mode of presentation. <strong>A braille display is the device, while braille output is the way information is presented to the user on that device.</strong></p>
+
+          <p>If, for example, the page contains:</p>
+
+          <pre><code>&lt;p&gt;Paragraph&lt;/p&gt;</code></pre>
+
+          <p>the text "Paragraph" can be conveyed to the user, through the accessibility representation and the screen reader, via speech output, braille output, or both simultaneously.</p>
+
+          <p>Braille output, however, doesn't have to be just a literal transcription of the speech output. A screen reader can build a separate representation of the information for the braille display, and use abbreviations or specific notations for roles and states.</p>
+
+          <p>The exact form of the braille output can therefore depend on the screen reader, its settings, the braille table used, the properties of the connected device, and other circumstances.</p>
+
+          <h3 id="information-vs-presentation">Information and its presentation aren't the same thing</h3>
+
+          <p>At the end of the whole process, it's necessary to distinguish between the <strong>information made available to assistive technology</strong> and the <strong>way that assistive technology presents it to the user</strong>.</p>
+
+          <p>The browser and platform accessibility API might expose, for example:</p>
+
+          <pre><code>role: heading
+level: 1
+name: "Heading"
+language: en</code></pre>
+
+          <p>The screen reader can use this data to produce speech output, braille output, or both simultaneously. It doesn't have to present all the available properties in the same way, or in the same order.</p>
+
+          <p><strong>So HTML is not speech or braille output. The accessibility tree isn't a finished output for the user either. It's structured information that undergoes processing and mapping throughout its whole path, and only the assistive technology finally builds the resulting presentation for the user.</strong></p>
+        </section>
+
+        <section aria-labelledby="quality-of-the-chain">
+          <h2 id="quality-of-the-chain">8. The quality of the whole chain starts in the code</h2>
+
+          <p>The fact that there are several technological layers between HTML and the screen reader doesn't mean that a web content author needs to know the implementation details of every browser, operating system, and screen reader.</p>
+
+          <p>The most reliable starting point is using standard web technologies the way they were designed to be used, and following the rules and requirements of the relevant specifications so that the resulting code is valid.</p>
+
+          <p>Different ways of implementing the same user interface don't necessarily have the same level of support across every combination of browsers and assistive technologies.</p>
+
+          <p>A button, for example, can be built as a native HTML element:</p>
+
+          <pre><code>&lt;button&gt;Save&lt;/button&gt;</code></pre>
+
+          <p>A component that looks similar at first glance can also be built like this:</p>
+
+          <pre><code>&lt;div role="button" tabindex="0"&gt;
+  Save
+&lt;/div&gt;</code></pre>
+
+          <p>These implementations, however, are not equivalent.</p>
+
+          <p>The native <code>button</code> element has its semantics, focusability, and basic interaction behaviour defined by HTML itself. With a generic <code>div</code> element, the author has to provide the necessary properties and behaviour themselves.</p>
+
+          <p>ARIA can add to or adjust the semantic information about an element, but on its own it doesn't recreate all the behaviour of a native HTML control.</p>
+
+          <p>When using ARIA, it's therefore a good idea to build on the principles described in <a href="https://www.w3.org/TR/using-aria/">Using ARIA</a> and the <a href="https://www.w3.org/WAI/ARIA/apg/">ARIA Authoring Practices Guide</a>.</p>
+
+          <h3 id="rule-1">8.1 Prefer native HTML elements (1st rule of ARIA use)</h3>
+
+          <p>The first rule of ARIA use is also the most important one. If HTML provides an element or attribute that already has the required semantics and behaviour, it should be preferred over building a custom alternative with ARIA.</p>
+
+          <p>Instead of:</p>
+
+          <pre><code>&lt;div role="button" tabindex="0"&gt;
+  Save
+&lt;/div&gt;</code></pre>
+
+          <p>it's therefore better to use:</p>
+
+          <pre><code>&lt;button&gt;Save&lt;/button&gt;</code></pre>
+
+          <p>The difference isn't just in the amount of code. A native button already provides semantics and basic behaviour that would otherwise have to be provided by the author for a custom component.</p>
+
+          <p><code>role="button"</code> can affect how an object is exposed to assistive technologies, but it doesn't automatically turn a <code>div</code> element into a native HTML button.</p>
+
+          <h3 id="rule-2">8.2 Preserve the native semantics of HTML elements (2nd rule of ARIA use)</h3>
+
+          <p>HTML elements already have their own semantics. If we override that with an ARIA role, the resulting representation of the object can start to diverge from its original meaning.</p>
+
+          <p>The following markup can be problematic, for example:</p>
+
+          <pre><code>&lt;h2 role="tab"&gt;
+  Settings
+&lt;/h2&gt;</code></pre>
+
+          <p>The <code>h2</code> element has native heading semantics, while <code>role="tab"</code> assigns it a different role.</p>
+
+          <p>The <a href="https://www.w3.org/TR/using-aria/">Using ARIA</a> document therefore warns that HTML's native semantics shouldn't be changed without a genuine need.</p>
+
+          <h3 id="rule-3">8.3 Ensure keyboard operability of interactive ARIA components (3rd rule of ARIA use)</h3>
+
+          <p>If an author builds a custom interactive component with ARIA, it isn't enough to ensure its correct representation for assistive technologies alone. The corresponding interaction behaviour must also be implemented.</p>
+
+          <p>For example:</p>
+
+          <pre><code>&lt;div role="button" tabindex="0"&gt;
+  Save
+&lt;/div&gt;</code></pre>
+
+          <p>can be focusable and exposed with the button role. That alone, however, doesn't ensure it will behave like a native button.</p>
+
+          <p>For a custom element with <code>role="button"</code>, the author also has to implement the expected keyboard interaction. The <a href="https://www.w3.org/WAI/ARIA/apg/patterns/button/">ARIA Authoring Practices Guide for the Button Pattern</a> describes activating a button with the <code>Enter</code> and <code>Space</code> keys.</p>
+
+          <p>A native <code>button</code> provides this basic behaviour automatically. For a custom component, the author is responsible for implementing it.</p>
+
+          <h3 id="rule-4">8.4 Expose focusable elements to assistive technologies (4th rule of ARIA use)</h3>
+
+          <p>Another rule warns about a conflict between an element's focusability and its removal from the accessibility representation.</p>
+
+          <p>The following markup is problematic, for example:</p>
+
+          <pre><code>&lt;button aria-hidden="true"&gt;
+  Continue
+&lt;/button&gt;</code></pre>
+
+          <p>The same problem can also arise indirectly:</p>
+
+          <pre><code>&lt;div aria-hidden="true"&gt;
+  &lt;button&gt;Continue&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+
+          <p>In the second case, <code>aria-hidden="true"</code> also applies to the descendants of the parent element. An interactive element can then end up in a situation where it's part of the keyboard interaction but isn't properly exposed to assistive technologies.</p>
+
+          <p><code>aria-hidden="true"</code> should therefore not be used on focusable elements, nor in a way that removes their focusable descendants from the accessibility representation.</p>
+
+          <h3 id="rule-5">8.5 Give interactive elements an accessible name (5th rule of ARIA use)</h3>
+
+          <p>An interactive element needs not only a correct role and behaviour, but also a name through which the user can understand its purpose.</p>
+
+          <p>For example, an icon button with no text content:</p>
+
+          <pre><code>&lt;button&gt;
+  &lt;svg aria-hidden="true"&gt;
+    ...
+  &lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+
+          <p>can have the correct native button role and be operable via the keyboard, yet without further information it might not have a usable accessible name.</p>
+
+          <p>One possible solution is:</p>
+
+          <pre><code>&lt;button aria-label="Close"&gt;
+  &lt;svg aria-hidden="true"&gt;
+    ...
+  &lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+
+          <p>In this case, <code>aria-label</code> gives the button the accessible name "Close", while the icon itself is hidden from assistive technologies.</p>
+
+          <p>Even here, though, the basic principle applies that ARIA should be used where it's actually needed. If a button already contains suitable text, its accessible name can be derived from the native content without adding <code>aria-label</code>.</p>
+
+          <h3 id="native-semantics">8.6 Prefer native semantics and behaviour over a custom implementation</h3>
+
+          <p>The more semantics and behaviour native HTML provides, the less responsibility remains with the author of a component. With a custom ARIA component, the author has to make sure, on their own, that the visual appearance, declared role, current state, keyboard behaviour, and the information ultimately exposed through the accessibility API all match — and even a technically correct implementation doesn't guarantee identical behaviour across every combination of browser, operating system, and assistive technology.</p>
+
+          <p><strong>Use the semantics and behaviour that HTML itself provides first, and add ARIA only where it's genuinely needed.</strong></p>
+
+          <p>The path from HTML to voice therefore doesn't start in the screen reader. It starts with the author's decision about which element to use in the source code.</p>
+
+          <p>Good semantics creates the foundation from which a meaningful accessibility representation can arise. Through platform mechanisms, that representation can be exposed to assistive technology and ultimately presented to the user through speech or braille output.</p>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <p>Author: <a href="https://rraddatch.github.io/" rel="author">Radoslav Ďurač</a>, Bratislava, Slovakia.</p>
+      <p>This page is designed to conform to WCAG 2.2 level A and AA.</p>
+      <p><a href="https://rraddatch.github.io/blog/">More posts on the blog</a> <span aria-hidden="true">·</span> <a href="https://rraddatch.github.io/">Back to the homepage</a></p>
+    </div>
+  </footer>
+</body>
+</html>

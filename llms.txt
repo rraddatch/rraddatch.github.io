@@ -15,7 +15,7 @@ Radoslav Ďurač works on the accessibility of websites, mobile applications, no
 ## Blog
 
 - [Blog](https://rraddatch.github.io/blog/): articles on digital accessibility (also available in Slovak: https://rraddatch.github.io/sk/blog/)
-- [The path between source code and the screen reader](https://rraddatch.github.io/blog/source-code-to-screen-reader/) (2026-08-15): the path an information takes from HTML source code through the DOM, accessibility tree and platform accessibility APIs to a screen reader's speech or braille output (also available in Slovak: https://rraddatch.github.io/sk/blog/od-html-k-hlasu/)
+- [The path between source code and the screen reader](https://rraddatch.github.io/blog/path-between-source-code-and-screen-reader/) (2026-08-15): the path an information takes from HTML source code through the DOM, accessibility tree and platform accessibility APIs to a screen reader's speech or braille output (also available in Slovak: https://rraddatch.github.io/sk/blog/cesta-medzi-zdrojovym-kodom-a-citacom-obrazovky/)
 
 ## Open source and projects
 
