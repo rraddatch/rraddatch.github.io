@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky | Radoslav Ďurač</title>
+  <meta name="description" content="Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.">
+  <meta name="author" content="Radoslav Ďurač">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky">
+  <meta property="og:description" content="Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.">
+  <meta property="og:locale" content="sk_SK">
+  <meta property="og:url" content="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
+  <meta property="article:published_time" content="2026-08-15">
+  <meta property="article:author" content="https://rraddatch.github.io/sk/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky">
+  <meta name="twitter:description" content="Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.">
+
+  <link rel="canonical" href="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
+  <link rel="alternate" hreflang="sk" href="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
+  <link rel="alternate" hreflang="x-default" href="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Fraunces:opsz,wght@9..144,400;9..144,600&display=swap" rel="stylesheet">
+
+  <!-- Štruktúrované dáta o článku a autorovi: toto číta Google aj jazykové modely -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "Person",
+        "@id": "https://rraddatch.github.io/#person",
+        "name": "Radoslav Ďurač",
+        "url": "https://rraddatch.github.io/",
+        "sameAs": [
+          "https://github.com/rraddatch",
+          "https://www.linkedin.com/in/radoslav-durac-digital-accessibility-specialist/"
+        ]
+      },
+      {
+        "@type": "BlogPosting",
+        "@id": "https://rraddatch.github.io/sk/blog/od-html-k-hlasu/#article",
+        "headline": "Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky",
+        "description": "Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.",
+        "inLanguage": "sk",
+        "datePublished": "2026-08-15",
+        "dateModified": "2026-08-15",
+        "url": "https://rraddatch.github.io/sk/blog/od-html-k-hlasu/",
+        "mainEntityOfPage": {
+          "@type": "WebPage",
+          "@id": "https://rraddatch.github.io/sk/blog/od-html-k-hlasu/"
+        },
+        "isPartOf": { "@id": "https://rraddatch.github.io/sk/blog/#blog" },
+        "author": { "@id": "https://rraddatch.github.io/#person" },
+        "publisher": { "@id": "https://rraddatch.github.io/#person" },
+        "about": ["Web accessibility", "Accessibility tree", "WAI-ARIA", "Screen readers", "DOM"],
+        "keywords": "prístupnosť, DOM, accessibility tree, ARIA, čítač obrazovky, WCAG, accessibility API"
+      },
+      {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          { "@type": "ListItem", "position": 1, "name": "Domov", "item": "https://rraddatch.github.io/sk/" },
+          { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://rraddatch.github.io/sk/blog/" },
+          { "@type": "ListItem", "position": 3, "name": "Od HTML k hlasu", "item": "https://rraddatch.github.io/sk/blog/od-html-k-hlasu/" }
+        ]
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #FBFAF7;
+      --bg-panel: #F2EFE8;
+      --ink: #16233A;
+      --ink-soft: #3A4658;
+      --accent: #A4243B;
+      --line: #D8D2C6;
+      --focus: #1B5FB0;
+      --code-fg: #F2EFE8;
+      --maxw: 46rem;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { font-size: 112.5%; -webkit-text-size-adjust: 100%; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Atkinson Hyperlegible", system-ui, -apple-system, sans-serif;
+      line-height: 1.6;
+      text-underline-offset: 0.16em;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 0.75rem;
+      top: -4rem;
+      z-index: 10;
+      background: var(--ink);
+      color: #fff;
+      padding: 0.65rem 1rem;
+      border-radius: 0 0 0.4rem 0.4rem;
+      font-weight: 700;
+      transition: top 0.15s ease;
+    }
+    .skip-link:focus { top: 0; }
+
+    a:focus-visible,
+    button:focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+      border-radius: 2px;
+    }
+
+    .wrap {
+      max-width: var(--maxw);
+      margin: 0 auto;
+      padding: 0 1.4rem;
+    }
+
+    .breadcrumb {
+      padding: 0.9rem 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.85rem;
+    }
+    .breadcrumb ol {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem 1.1rem;
+      margin: 0;
+      padding: 0;
+    }
+    .breadcrumb a {
+      font-weight: 700;
+      color: var(--ink-soft);
+      text-decoration-thickness: 1px;
+    }
+    .breadcrumb [aria-current="page"] {
+      color: var(--ink);
+      font-weight: 700;
+    }
+
+    header.post {
+      padding: clamp(2.4rem, 7vw, 4rem) 0 2rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      font-size: 0.82rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-soft);
+      margin: 0 0 1rem;
+    }
+
+    h1 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: clamp(2rem, 6vw, 2.9rem);
+      line-height: 1.12;
+      margin: 0 0 1rem;
+      letter-spacing: -0.01em;
+    }
+
+    .lede {
+      font-size: clamp(1.08rem, 2.4vw, 1.22rem);
+      color: var(--ink-soft);
+      max-width: 38rem;
+      margin: 0 0 1.3rem;
+    }
+
+    .byline {
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+      margin: 0;
+    }
+    .byline a { color: var(--ink); font-weight: 700; }
+    .byline .sep { margin: 0 0.5em; }
+
+    .accent-rule {
+      width: 3.2rem;
+      height: 0.28rem;
+      background: var(--accent);
+      border: 0;
+      margin: 1.6rem 0 0;
+    }
+
+    main { padding: 2.6rem 0 1rem; }
+
+    article > p { margin: 0 0 1.1rem; }
+
+    section { margin: 2.8rem 0; }
+    section:first-of-type { margin-top: 0; }
+
+    h2 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: 1.5rem;
+      line-height: 1.25;
+      margin: 0 0 1.1rem;
+    }
+
+    h3 {
+      font-family: "Fraunces", Georgia, serif;
+      font-weight: 600;
+      font-size: 1.18rem;
+      line-height: 1.3;
+      margin: 1.8rem 0 0.9rem;
+    }
+
+    p { margin: 0 0 1.1rem; }
+
+    strong { font-weight: 700; }
+
+    a { color: var(--accent); }
+
+    ul.plain-list, ol.plain-list { padding-left: 1.3rem; margin: 0 0 1.1rem; }
+    ul.plain-list li, ol.plain-list li { margin: 0.3rem 0; }
+
+    code {
+      font-family: ui-monospace, "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      padding: 0.08em 0.35em;
+      border-radius: 0.3em;
+      font-size: 0.9em;
+      word-break: break-word;
+    }
+
+    pre {
+      background: var(--ink);
+      color: var(--code-fg);
+      padding: 1rem 1.2rem;
+      border-radius: 0.6rem;
+      overflow-x: auto;
+      margin: 0 0 1.3rem;
+      line-height: 1.55;
+    }
+    pre code {
+      background: none;
+      border: 0;
+      color: inherit;
+      padding: 0;
+      font-size: 0.85rem;
+      white-space: pre;
+    }
+
+    figure.diagram {
+      margin: 0 0 1.6rem;
+    }
+    .diagram-slot {
+      border: 2px dashed var(--line);
+      border-radius: 0.6rem;
+      padding: 2.6rem 1.2rem;
+      text-align: center;
+      color: var(--ink-soft);
+      font-weight: 700;
+      background: var(--bg-panel);
+    }
+    figcaption {
+      margin-top: 0.6rem;
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+
+    nav.toc {
+      background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 0.7rem;
+      padding: 1.3rem 1.5rem 1.4rem;
+      margin: 2.2rem 0 3rem;
+    }
+    nav.toc h2 {
+      font-size: 1.05rem;
+      margin: 0 0 0.8rem;
+    }
+    nav.toc ol {
+      margin: 0;
+      padding-left: 1.3rem;
+    }
+    nav.toc li { margin: 0.35rem 0; }
+    nav.toc ol ol {
+      margin-top: 0.35rem;
+      padding-left: 1.2rem;
+    }
+    nav.toc a { font-weight: 700; }
+
+    footer.site {
+      margin-top: 3rem;
+      padding: 2.4rem 0 3.5rem;
+      border-top: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 0.92rem;
+    }
+    footer.site p { margin: 0 0 0.4rem; }
+    footer.site a { font-weight: 700; }
+
+    @media (prefers-reduced-motion: reduce) {
+      * { transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#obsah-clanku">Preskočiť na obsah</a>
+
+  <nav class="breadcrumb wrap" aria-label="Navigačná cesta">
+    <ol>
+      <li><a href="https://rraddatch.github.io/sk/">Domov</a></li>
+      <li><a href="https://rraddatch.github.io/sk/blog/">Blog</a></li>
+      <li><span aria-current="page">Od HTML k hlasu</span></li>
+    </ol>
+  </nav>
+
+  <header class="post">
+    <div class="wrap">
+      <p class="eyebrow">Blog · Digitálna prístupnosť</p>
+      <h1>Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky</h1>
+      <p class="lede">Ako sa HTML mení na DOM, accessibility tree a napokon na hlasový alebo braillový výstup čítača obrazovky — a prečo to nie je len „čítanie HTML“.</p>
+      <p class="byline">
+        <a href="https://rraddatch.github.io/sk/" rel="author">Radoslav Ďurač</a>
+        <span class="sep">·</span>
+        <time datetime="2026-08-15">15. augusta 2026</time>
+        <span class="sep">·</span>
+        približne 20 min čítania
+      </p>
+      <hr class="accent-rule" aria-hidden="true">
+    </div>
+  </header>
+
+  <main id="obsah-clanku">
+    <div class="wrap">
+      <article>
+
+        <p>Keď používateľ pracuje s webovou stránkou pomocou čítača obrazovky, môže vzniknúť dojem, že asistenčná technológia jednoducho prečíta HTML dokument, v skutočnosti je cesta informácie od zdrojového kódu až po jej výslednú prezentáciu používateľovi prostredníctvom asistenčnej technológie podstatne zložitejšia.</p>
+
+        <p>Čítač obrazovky spravidla nepracuje priamo so zdrojovým HTML kódom stránky. Medzi HTML dokumentom a výslednou informáciou, ktorú používateľ dostane, sa nachádza niekoľko vrstiev. Prehliadač spracuje HTML a vytvorí <span lang="en">Document Object Model</span>, teda DOM. Na základe DOM, natívnej sémantiky HTML, ARIA, CSS a ďalších informácií vytvára reprezentáciu určenú pre prístupnosť. Tú následne mapuje na mechanizmy prístupnosti konkrétnej platformy, prostredníctvom ktorých sa k informáciám dostáva asistenčná technológia.</p>
+
+        <p>Asistenčná technológia napokon získané informácie interpretuje a prezentuje používateľovi, napríklad prostredníctvom hlasového alebo braillového výstupu.</p>
+
+        <p>Pochopenie tejto cesty má praktický význam aj pri vývoji a testovaní prístupnosti. Pomáha vysvetliť, prečo môže byť element prítomný v DOM, ale nemusí byť exponovaný asistenčným technológiám, prečo môže výsledná reprezentácia prístupnosti obsahovať iné informácie než samotný HTML kód alebo prečo sa rovnaká implementácia môže v rôznych kombináciách prehliadača, operačného systému a čítača obrazovky správať odlišne.</p>
+
+        <p><strong>Cieľom článku je opísať cestu informácie od HTML kódu cez DOM, reprezentáciu prístupnosti a platformové accessibility API až k čítaču obrazovky a jeho výstupu používateľovi.</strong> Nejde pritom o detailný opis implementácie konkrétneho prehliadača alebo čítača obrazovky, ale o vysvetlenie jednotlivých vrstiev a ich úlohy v celom procese. Na konkrétnych príkladoch si zároveň ukážeme, ako môžu HTML, ARIA a ďalšie atribúty ovplyvniť informácie, ktoré sú napokon dostupné asistenčným technológiám.</p>
+
+        <nav class="toc" aria-labelledby="toc-heading">
+          <h2 id="toc-heading">Obsah</h2>
+          <ol>
+            <li><a href="#dom">Z HTML sa stáva DOM</a></li>
+            <li><a href="#accessibility-tree">Z DOM vzniká reprezentácia pre prístupnosť</a>
+              <ol>
+                <li><a href="#dom-vs-tree">Nie všetko z DOM musí byť exponované v accessibility tree</a></li>
+              </ol>
+            </li>
+            <li><a href="#pristupny-nazov">Prístupný názov nie je vždy text, ktorý vidíme v HTML</a>
+              <ol>
+                <li><a href="#nazov-vs-popis">Prístupný názov a prístupný popis nie sú totožné</a></li>
+              </ol>
+            </li>
+            <li><a href="#accessibility-api">Accessibility API prepája prehliadač s operačným systémom</a></li>
+            <li><a href="#viacprocesovy-prehliadac">V modernom prehliadači nemusí celý proces prebiehať v jednom procese</a></li>
+            <li><a href="#interpretacia">Čítač obrazovky získané informácie ďalej interpretuje</a></li>
+            <li><a href="#vystup">Výsledkom nemusí byť iba syntetizovaná reč</a>
+              <ol>
+                <li><a href="#hlasovy-vystup">Hlasový výstup</a></li>
+                <li><a href="#braillovy-vystup">Braillový výstup</a></li>
+                <li><a href="#informacia-vs-prezentacia">Informácia a jej prezentácia nie sú to isté</a></li>
+              </ol>
+            </li>
+            <li><a href="#kvalita-retazca">Kvalita celého reťazca sa začína v kóde</a>
+              <ol>
+                <li><a href="#pravidlo-1">Uprednostnenie natívnych HTML prvkov (1. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-2">Zachovanie natívnej sémantiky HTML prvkov (2. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-3">Zabezpečenie ovládateľnosti interaktívnych ARIA komponentov klávesnicou (3. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-4">Exponovanie zamerateľných prvkov asistenčným technológiám (4. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-5">Zabezpečenie prístupného názvu interaktívnych prvkov (5. pravidlo ARIA)</a></li>
+                <li><a href="#zaver-semantika">Uprednostnenie natívnej sémantiky a správania pred vlastnou implementáciou</a></li>
+              </ol>
+            </li>
+          </ol>
+        </nav>
+
+        <section aria-labelledby="dom">
+          <h2 id="dom">1. Z HTML sa stáva DOM</h2>
+
+          <p>Prvým dôležitým krokom je spracovanie HTML dokumentu prehliadačom. Prehliadač HTML nevníma iba ako textový súbor. Pri jeho spracovaní vytvára <strong>Document Object Model</strong>, skrátene DOM. Tento model definuje <a href="https://dom.spec.whatwg.org/">DOM Standard</a>.</p>
+
+          <p>DOM je programová reprezentácia dokumentu usporiadaná do stromovej štruktúry. Jednotlivé HTML elementy sa v nej stávajú uzlami, medzi ktorými existujú hierarchické vzťahy. Súčasťou tejto reprezentácie sú aj textové uzly a informácie spojené s jednotlivými elementmi.</p>
+
+          <p>Predstavme si jednoduchý dokument:</p>
+
+          <pre><code>&lt;!DOCTYPE html&gt;
+&lt;html lang="sk"&gt;
+  &lt;head&gt;
+    &lt;title&gt;Môj dokument&lt;/title&gt;
+  &lt;/head&gt;
+  &lt;body&gt;
+    &lt;h1&gt;Nadpis&lt;/h1&gt;
+    &lt;p&gt;Odsek&lt;/p&gt;
+  &lt;/body&gt;
+&lt;/html&gt;</code></pre>
+
+          <p>Prehliadač z neho vytvorí stromovú štruktúru. Objekt <code>Document</code> obsahuje koreňový element <code>html</code>. Element <code>html</code> má v tomto príklade dvoch priamych potomkov, <code>head</code> a <code>body</code>. Element <code>head</code> obsahuje <code>title</code>, ktorého textovým obsahom je „Môj dokument“. Element <code>body</code> obsahuje element <code>h1</code> s textom „Nadpis“ a element <code>p</code> s textom „Odsek“.</p>
+
+          <figure class="diagram">
+            <div class="diagram-slot" aria-hidden="true">Diagram</div>
+            <figcaption>DOM diagram uvedeného HTML dokumentu. (Obrázok bude doplnený.)</figcaption>
+          </figure>
+
+          <p>DOM teda nezachytáva iba samotné elementy. Zachytáva aj ich hierarchické vzťahy. Každý uzol môže mať rodiča, potomkov a súrodencov na rovnakej úrovni stromu. Text nachádzajúci sa vo vnútri elementov je reprezentovaný textovými uzlami.</p>
+
+          <p>DOM je zároveň živá reprezentácia dokumentu. JavaScript môže jeho obsah meniť, pridávať nové elementy, odstraňovať existujúce elementy alebo meniť ich atribúty. Aktuálna podoba DOM preto nemusí byť totožná s pôvodným HTML, ktoré server odoslal prehliadaču.</p>
+
+          <p>Je však dôležité rozlišovať medzi DOM a reprezentáciou určenou pre prístupnosť. <strong>DOM nie je accessibility tree.</strong></p>
+
+          <p>DOM obsahuje množstvo informácií potrebných na fungovanie stránky, ktoré nemusia byť relevantné pre asistenčné technológie. Naopak, niektoré informácie dôležité pre prístupnosť vznikajú až pri ďalšom spracovaní dokumentu.</p>
+        </section>
+
+        <section aria-labelledby="accessibility-tree">
+          <h2 id="accessibility-tree">2. Z DOM vzniká reprezentácia pre prístupnosť</h2>
+
+          <p>Na základe DOM, natívnej sémantiky HTML, vlastností ARIA, CSS a ďalších informácií vzniká interná reprezentácia obsahu relevantná pre prístupnosť. V bežnej terminológii sa označuje ako <span lang="en">accessibility tree</span>.</p>
+
+          <p>Accessibility tree však nie je jednoduchou kópiou DOM. Accessibility tree možno zjednodušene chápať ako strom objektov relevantných z pohľadu prístupnosti. Jednotlivé objekty môžu niesť informácie napríklad o svojej role, názve, hodnote, stave, úrovni alebo vzťahoch k iným objektom.</p>
+
+          <p>Natívna sémantika HTML poskytuje veľkú časť týchto informácií automaticky. Element <code>&lt;button&gt;</code> poskytuje sémantiku tlačidla. Element <code>&lt;h1&gt;</code> reprezentuje nadpis prvej úrovne. Zaškrtávacie pole vytvorené pomocou <code>&lt;input type="checkbox"&gt;</code> poskytuje sémantiku zaškrtávacieho poľa a umožňuje exponovať aj informáciu o jeho aktuálnom stave.</p>
+
+          <p>CSS pritom môže rozhodnúť aj o tom, či sa element v accessibility tree vôbec objaví. Element s <code>display: none</code> alebo <code>visibility: hidden</code> sa z reprezentácie prístupnosti úplne vylúči, rovnako ako sa neguje jeho vizuálne zobrazenie a klávesnicová dostupnosť. To je zásadný rozdiel oproti <code>aria-hidden="true"</code>, ktorému sa venujeme nižšie: <code>aria-hidden</code> skryje element len pred asistenčnými technológiami, no element zostáva vizuálne zobrazený a môže zostať aj naďalej zamerateľný klávesnicou. Práve táto odlišnosť je pri testovaní prístupnosti častým zdrojom nedorozumení.</p>
+
+          <p>Spôsob, akým sa HTML elementy a atribúty mapujú na platformové accessibility API, opisuje <a href="https://www.w3.org/TR/html-aam-1.0/">HTML Accessibility API Mappings</a>. Všeobecnejšie pravidlá mapovania webových technológií na platformové accessibility API opisuje <a href="https://www.w3.org/TR/core-aam-1.2/">Core Accessibility API Mappings</a>.</p>
+
+          <figure class="diagram">
+            <div class="diagram-slot" aria-hidden="true">Diagram</div>
+            <figcaption>Accessibility tree diagram s objektmi <code>document</code>, <code>heading</code>, <code>paragraph</code> a príslušnými textovými objektmi. Pri <code>document</code> sú uvedené názov „Môj dokument“ a jazyk <code>sk</code>. (Obrázok bude doplnený.)</figcaption>
+          </figure>
+
+          <p>Koreňový objekt <code>document</code> môže niesť názov „Môj dokument“, ktorý vychádza z názvu dokumentu. V diagrame je pri ňom uvedená aj informácia o jazyku <code>sk</code>, odvodená z <code>lang="sk"</code>.</p>
+
+          <p>Pod objektom <code>document</code> sa v diagrame nachádzajú objekty reprezentujúce nadpis a odsek.</p>
+
+          <p>Objekt <code>heading</code> má úroveň <code>1</code> a názov „Nadpis“. Pod ním sa zároveň nachádza textový objekt s textom „Nadpis“.</p>
+
+          <p>Pri objekte <code>paragraph</code> je situácia odlišná. Samotný objekt môže mať prázdny prístupný názov, hoci odsek obsahuje text „Odsek“. Na prvý pohľad to môže pôsobiť zvláštne, pretože pri objekte <code>heading</code> sme videli názov „Nadpis“.</p>
+
+          <p>Dôvodom je, že <strong>textový obsah elementu a prístupný názov objektu nie sú to isté</strong>. To, že sa medzi otváracou a zatváracou značkou HTML elementu nachádza text, ešte automaticky neznamená, že sa tento text použije ako prístupný názov príslušného objektu.</p>
+
+          <p>O tom, z akých zdrojov môže objekt získať prístupný názov, rozhoduje okrem iného jeho rola a pravidlá výpočtu prístupného názvu. Pri jednotlivých rolách WAI ARIA určuje, či môže názov pochádzať napríklad z autora alebo z obsahu. Samotný výpočet následne opisuje špecifikácia <a href="https://www.w3.org/TR/accname-1.2/">Accessible Name and Description Computation</a>.</p>
+
+          <p>Pri nadpise je jeho text zároveň tým, čo nadpis identifikuje. Pre element:</p>
+
+          <pre><code>&lt;h1&gt;Nadpis&lt;/h1&gt;</code></pre>
+
+          <p>môže byť preto výsledkom objekt s rolou <code>heading</code>, úrovňou <code>1</code> a prístupným názvom „Nadpis“. Text „Nadpis“ sa môže podieľať na výpočte názvu objektu.</p>
+
+          <p>Pri odseku:</p>
+
+          <pre><code>&lt;p&gt;Odsek&lt;/p&gt;</code></pre>
+
+          <p>má text „Odsek“ inú úlohu. Je to predovšetkým <strong>textový obsah odseku, nie jeho označenie</strong>. Samotný objekt <code>paragraph</code> preto nemusí mať prístupný názov „Odsek“. Jeho text však zostáva v reprezentácii prístupnosti dostupný ako textový obsah.</p>
+
+          <p>Zjednodušene si môžeme rozdiel predstaviť takto:</p>
+
+          <pre><code>&lt;h1&gt;Nadpis&lt;/h1&gt;
+
+heading
+  názov: "Nadpis"
+  text: "Nadpis"</code></pre>
+
+          <p>zatiaľ čo:</p>
+
+          <pre><code>&lt;p&gt;Odsek&lt;/p&gt;
+
+paragraph
+  názov: ""
+  text: "Odsek"</code></pre>
+
+          <p><strong>Prázdny prístupný názov objektu <code>paragraph</code> teda neznamená, že je odsek prázdny alebo že jeho text nie je dostupný asistenčným technológiám.</strong> Znamená iba to, že text „Odsek“ v tomto prípade nepredstavuje prístupný názov objektu. Textový obsah môže byť v accessibility tree reprezentovaný prostredníctvom podradeného textového objektu a takto sprístupnený asistenčným technológiám.</p>
+
+          <p>Práve na tomto rozdiele je dobre vidieť, prečo accessibility tree nemožno chápať ako DOM, v ktorom sa iba HTML značky premenovali na roly. Pri jeho vytváraní sa uplatňuje sémantika jednotlivých elementov a rolí a z nej vyplýva, aké vlastnosti budú mať výsledné objekty a ako bude reprezentovaný ich textový obsah.</p>
+
+          <p>Diagram zároveň nepredstavuje jedinú možnú alebo normatívne predpísanú podobu accessibility tree. Ide o zjednodušenú ilustráciu princípu. Konkrétna štruktúra stromu a spôsob reprezentácie jednotlivých objektov sa môžu líšiť v závislosti od prehliadača, platformy a použitého accessibility API.</p>
+
+          <h3 id="dom-vs-tree">2.1 Nie všetko z DOM musí byť exponované v accessibility tree</h3>
+
+          <p>DOM a accessibility tree sa môžu líšiť nielen svojou štruktúrou, ale aj tým, ktoré časti dokumentu obsahujú. V DOM sa môžu nachádzať elementy potrebné na vizuálne zobrazenie, rozloženie stránky alebo fungovanie používateľského rozhrania, ktoré z pohľadu prístupnosti nemajú používateľovi sprostredkovať samostatnú informáciu. Takéto elementy preto nemusia byť exponované asistenčným technológiám.</p>
+
+          <p>Jedným z mechanizmov, ktorým možno obsah z reprezentácie prístupnosti vylúčiť, je atribút <code>aria-hidden="true"</code>. Jeho použitím autor určuje, že daný element a jeho potomkovia nemajú byť exponovaní prostredníctvom accessibility API. Element pritom zostáva súčasťou DOM a môže byť naďalej vizuálne zobrazený na stránke. Podrobnosti o vlastnosti <code>aria-hidden</code> definuje <a href="https://www.w3.org/TR/wai-aria-1.2/#aria-hidden">WAI ARIA</a>.</p>
+
+          <p>Pri použití <code>aria-hidden="true"</code> je potrebné zohľadniť aj jeho vplyv na potomkov elementu. Ak by sa v takto skrytej časti nachádzal napríklad odkaz, tlačidlo alebo iný zamerateľný prvok, mohol by zostať dostupný pomocou klávesnice, hoci by nebol zodpovedajúcim spôsobom exponovaný asistenčným technológiám. <code>aria-hidden="true"</code> sa preto nemá používať na zamerateľných prvkoch ani na ich predkoch.</p>
+
+          <p>Pri testovaní prístupnosti preto samotná kontrola DOM nestačí. Je potrebné overovať aj výslednú reprezentáciu prístupnosti a informácie, ktoré prehliadač prostredníctvom platformového accessibility API sprístupňuje asistenčným technológiám.</p>
+        </section>
+
+        <section aria-labelledby="pristupny-nazov">
+          <h2 id="pristupny-nazov">3. Prístupný názov nie je vždy text, ktorý vidíme v HTML</h2>
+
+          <p>Prístupný názov je textová hodnota, pomocou ktorej môže byť objekt používateľského rozhrania identifikovaný asistenčnými technológiami. Nemusí však pochádzať z jedného konkrétneho HTML atribútu alebo priamo z textového obsahu elementu.</p>
+
+          <p>Prehliadač ho vypočítava podľa pravidiel definovaných v špecifikácii <a href="https://www.w3.org/TR/accname-1.2/">Accessible Name and Description Computation</a>. Do výpočtu môžu v závislosti od konkrétneho elementu a jeho role vstupovať rôzne zdroje.</p>
+
+          <p>Pri formulárovom poli môže názov pochádzať napríklad z asociovaného elementu <code>&lt;label&gt;</code>:</p>
+
+          <pre><code>&lt;label for="email"&gt;Email&lt;/label&gt;
+
+&lt;input
+  id="email"
+  type="email"
+  autocomplete="email"&gt;</code></pre>
+
+          <p>V tomto prípade element <code>&lt;label&gt;</code> poskytuje poľu prístupný názov „Email“.</p>
+
+          <p>Pri tlačidle môže názov pochádzať priamo z jeho textového obsahu:</p>
+
+          <pre><code>&lt;button&gt;Odoslať&lt;/button&gt;</code></pre>
+
+          <p>Prístupný názov tlačidla je v tomto prípade „Odoslať“. Do jeho výpočtu však môžu vstupovať aj iné zdroje, napríklad <code>aria-labelledby</code> alebo <code>aria-label</code>, pričom pravidlá výpočtu určujú aj ich vzájomnú prioritu.</p>
+
+          <p>Dobre to možno ukázať na tlačidle, ktorého viditeľný text sa líši od hodnoty <code>aria-label</code>:</p>
+
+          <pre><code>&lt;button aria-label="Vyhľadať"&gt;
+  Hľadať
+&lt;/button&gt;</code></pre>
+
+          <p>Tlačidlo obsahuje viditeľný text „Hľadať“, ktorý by bez ďalšieho zdroja poskytol jeho prístupný názov. V tomto prípade je však použitý atribút <code>aria-label</code>, ktorý má pri výpočte prístupného názvu pred textovým obsahom tlačidla prednosť. Výsledok si preto môžeme zjednodušene predstaviť takto:</p>
+
+          <pre><code>button
+  názov: "Vyhľadať"</code></pre>
+
+          <p>Asistenčnej technológii je teda exponovaný výsledný prístupný názov „Vyhľadať“. Čítač obrazovky nemusí sám analyzovať <code>aria-label</code> a rozhodovať, či ho uprednostní pred textom „Hľadať“. Toto rozhodnutie vyplýva už z pravidiel výpočtu prístupného názvu a čítač obrazovky následne pracuje s výslednou vlastnosťou objektu. Používateľovi tak môže oznámiť napríklad „Vyhľadať, tlačidlo“.</p>
+
+          <p>Tento príklad slúži výlučne na ilustráciu mechanizmu výpočtu prístupného názvu, nie ako odporúčaný spôsob zápisu. Nesúlad medzi viditeľným textom tlačidla a jeho prístupným názvom porušuje kritérium WCAG 2.5.3 Label in Name, keďže používateľ hlasového ovládania, ktorý sa spolieha na viditeľný text „Hľadať“, by príslušný príkaz nemusel nájsť. V praxi by preto mal prístupný názov obsahovať viditeľný text prvku, prípadne ho dopĺňať, nie mu úplne odporovať.</p>
+
+          <p>Tento príklad zároveň ukazuje, prečo nemožno fungovanie čítača obrazovky zjednodušiť na „čítanie HTML“. Informácia, ktorú asistenčná technológia dostane, môže byť výsledkom spracovania viacerých zdrojov a nemusí byť totožná s textom zobrazeným na obrazovke.</p>
+
+          <p>Výslednú reprezentáciu možno skúmať aj vo vývojárskych nástrojoch prehliadača.</p>
+
+          <figure class="diagram">
+            <div class="diagram-slot" aria-hidden="true">Screenshot</div>
+            <figcaption>Screenshot panela Accessibility s vypočítanou rolou, názvom, stavmi a ďalšími vlastnosťami objektu. (Obrázok bude doplnený.)</figcaption>
+          </figure>
+
+          <p>Takýto pohľad umožňuje pri diagnostike overiť nielen samotné HTML, ale aj výslednú rolu, prístupný názov, popis, stavy a ďalšie vlastnosti, ktoré prehliadač pre objekt vypočítal a exponuje.</p>
+
+          <h3 id="nazov-vs-popis">3.1 Prístupný názov a prístupný popis nie sú totožné</h3>
+
+          <p>Popri prístupnom názve môže objekt obsahovať aj <span lang="en">accessible description</span>, teda prístupný popis. Ide o dve samostatné vlastnosti objektu v reprezentácii prístupnosti a každá z nich má inú úlohu.</p>
+
+          <p><strong>Prístupný popis poskytuje doplňujúcu informáciu o už identifikovanom prvku.</strong> Môže napríklad vysvetliť požadovaný formát vstupu, podmienky jeho vyplnenia alebo inú informáciu, ktorú používateľ potrebuje pri práci s prvkom. Nenahrádza preto prístupný názov, ale dopĺňa ho.</p>
+
+          <p>Predstavme si formulárové pole:</p>
+
+          <pre><code>&lt;label for="password"&gt;Heslo&lt;/label&gt;
+
+&lt;input
+  id="password"
+  type="password"
+  autocomplete="current-password"
+  aria-describedby="password-help"&gt;
+
+&lt;p id="password-help"&gt;
+  Heslo musí obsahovať aspoň 12 znakov.
+&lt;/p&gt;</code></pre>
+
+          <p>V tomto prípade sa text „Heslo“ z asociovaného elementu <code>&lt;label&gt;</code> použije pri výpočte <strong>prístupného názvu</strong> poľa.</p>
+
+          <p>Atribút <code>aria-describedby="password-help"</code> vytvára vzťah medzi vstupným poľom a elementom s <code>id="password-help"</code>. Text „Heslo musí obsahovať aspoň 12 znakov.“ sa preto použije pri výpočte <strong>prístupného popisu</strong> poľa.</p>
+
+          <p>Výsledný objekt reprezentujúci formulárové pole si tak môžeme zjednodušene predstaviť napríklad takto:</p>
+
+          <pre><code>textbox
+  názov: "Heslo"
+  popis: "Heslo musí obsahovať aspoň 12 znakov."</code></pre>
+
+          <p>Text „Heslo musí obsahovať aspoň 12 znakov.“ sa teda nestáva súčasťou prístupného názvu iba preto, že ho čítač obrazovky môže oznámiť spolu s názvom poľa. <strong>Prístupný názov a prístupný popis zostávajú z pohľadu reprezentácie prístupnosti samostatnými vlastnosťami objektu.</strong></p>
+
+          <p>To je dôležité aj pri testovaní prístupnosti. Ak čítač obrazovky pri zameraní poľa oznámi napríklad „Heslo, editačné pole, Heslo musí obsahovať aspoň 12 znakov“, zo samotného hlasového výstupu nemusí byť zrejmé, z ktorej vlastnosti jednotlivé informácie pochádzajú. Pri diagnostike je preto užitočné overiť priamo výsledný prístupný názov a prístupný popis objektu.</p>
+
+          <p>Spôsob výpočtu oboch vlastností definuje <a href="https://www.w3.org/TR/accname-1.2/">Accessible Name and Description Computation</a>.</p>
+
+          <p>Rola, prístupný názov a popis pritom predstavujú iba časť informácií, ktoré môže objekt niesť. V závislosti od konkrétneho prvku môže reprezentácia prístupnosti obsahovať aj jeho hodnotu, stav, úroveň, jazyk alebo vzťahy k ďalším objektom.</p>
+        </section>
+
+        <section aria-labelledby="accessibility-api">
+          <h2 id="accessibility-api">4. Accessibility API prepája prehliadač s operačným systémom</h2>
+
+          <p>Accessibility tree obsahuje informácie o webovom obsahu v podobe relevantnej pre prístupnosť. Čítač obrazovky však nepotrebuje poznať DOM ani spôsob, akým si konkrétny prehliadač túto reprezentáciu interne vytvára a uchováva. Potrebuje mať k dispozícii informácie o jednotlivých objektoch, napríklad ich rolu, prístupný názov, stav alebo vzťahy k ďalším objektom.</p>
+
+          <p>Na sprostredkovanie týchto informácií slúžia <strong>platformové accessibility API</strong>.</p>
+
+          <p>API je skratka z anglického „Application Programming Interface“. Ide o rozhranie, ktoré umožňuje komunikáciu medzi rôznymi časťami softvéru. V prípade accessibility API poskytuje platforma mechanizmus, prostredníctvom ktorého môžu aplikácie sprístupňovať informácie o svojom používateľskom rozhraní asistenčným technológiám.</p>
+
+          <p>Predstavme si napríklad tlačidlo, ktoré ovláda zobrazenie menu:</p>
+
+          <pre><code>&lt;button aria-expanded="false" aria-controls="menu"&gt;
+  Menu
+&lt;/button&gt;</code></pre>
+
+          <p>Na základe natívnej sémantiky elementu <code>button</code>, jeho textového obsahu a atribútov ARIA môže prehliadač vytvoriť objekt, ktorý si zjednodušene predstavíme takto:</p>
+
+          <pre><code>button
+  názov: "Menu"
+  expanded: false
+  controls: menu</code></pre>
+
+          <p>Jednotlivé informácie pochádzajú z rôznych častí HTML. Element <code>button</code> poskytuje natívnu rolu tlačidla, text „Menu“ sa použije pri výpočte jeho prístupného názvu a <code>aria-expanded="false"</code> vyjadruje, že ovládaný obsah je momentálne zatvorený. Atribút <code>aria-controls="menu"</code> zároveň vytvára vzťah k elementu s <code>id="menu"</code> a vyjadruje, že tlačidlo tento obsah ovláda.</p>
+
+          <p>Aby mohli s týmito informáciami pracovať asistenčné technológie, prehliadač ich <strong>mapuje na zodpovedajúce objekty, vlastnosti, stavy a vzťahy accessibility API konkrétnej platformy</strong>. Rola tlačidla, jeho názov, stav otvorenia aj vzťah k ovládanému objektu tak musia byť reprezentované spôsobom, ktorý daná platforma podporuje.</p>
+
+          <p>Toto mapovanie je potrebné preto, že webové technológie a operačné systémy nepoužívajú jeden spoločný model prístupnosti. HTML a ARIA definujú sémantiku webového obsahu, zatiaľ čo jednotlivé platformy majú vlastné rozhrania a vlastné spôsoby reprezentácie prístupných objektov a ich vlastností.</p>
+
+          <p>Neexistuje preto jedno accessibility API spoločné pre všetky platformy. V prostredí Windows sa používa napríklad <a href="https://learn.microsoft.com/en-us/windows/win32/winauto/entry-uiauto-win32">Microsoft UI Automation</a>, platformy spoločnosti Apple poskytujú vlastné <a href="https://developer.apple.com/documentation/accessibility">Accessibility API</a>, linuxové desktopové prostredia využívajú napríklad <a href="https://docs.gtk.org/atspi2/">AT-SPI</a> a Android poskytuje vlastný <a href="https://developer.android.com/guide/topics/ui/accessibility">Accessibility framework</a>.</p>
+
+          <p>Na Windows navyše nejde iba o jedno API. Popri UI Automation sa pri sprístupňovaní webového obsahu dlhodobo používa aj staršie <strong>IAccessible2</strong>, na ktoré sa pri práci s webovým obsahom vo veľkej miere spoliehajú napríklad NVDA a JAWS. Chromium preto na Windows súbežne podporuje oba mechanizmy a konkrétny čítač obrazovky si volí, s ktorým z nich bude pracovať.</p>
+
+          <p>Prehliadač musí preto rovnakú sémantiku webového obsahu sprístupniť spôsobom zodpovedajúcim platforme, na ktorej je spustený. Mapovanie sa pritom netýka iba rolí objektov, ale aj ich prístupných názvov a popisov, hodnôt, stavov, vzťahov a ďalších informácií relevantných pre prístupnosť.</p>
+
+          <p>Pravidlá, podľa ktorých sa sémantika webových technológií premieta do platformových accessibility API, opisujú špecifikácie Accessibility API Mappings. <a href="https://www.w3.org/TR/core-aam-1.2/">Core Accessibility API Mappings</a> definuje všeobecné pravidlá mapovania rolí, stavov a vlastností, zatiaľ čo <a href="https://www.w3.org/TR/html-aam-1.0/">HTML Accessibility API Mappings</a> opisuje mapovanie natívnej sémantiky HTML.</p>
+
+          <p>Accessibility tree a platformové accessibility API teda plnia odlišné úlohy. <strong>Accessibility tree predstavuje reprezentáciu webového obsahu z pohľadu prístupnosti, zatiaľ čo accessibility API poskytuje rozhranie, prostredníctvom ktorého môže byť táto sémantika sprístupnená asistenčným technológiám na konkrétnej platforme.</strong></p>
+        </section>
+
+        <section aria-labelledby="viacprocesovy-prehliadac">
+          <h2 id="viacprocesovy-prehliadac">5. V modernom prehliadači nemusí celý proces prebiehať v jednom procese</h2>
+
+          <p>Moderné prehliadače sú viacprocesové aplikácie. Webový obsah, používateľské rozhranie prehliadača a ďalšie časti jeho funkcionality nemusia byť spracovávané v jednom spoločnom procese.</p>
+
+          <p>Takéto rozdelenie súvisí najmä s bezpečnosťou, stabilitou a izoláciou jednotlivých častí prehliadača. Zlyhanie alebo problém v jednej webovej stránke tak nemusí nevyhnutne ovplyvniť celý prehliadač.</p>
+
+          <p>Viacprocesová architektúra má dôsledky aj pre prístupnosť.</p>
+
+          <p>Informácie potrebné na vytvorenie reprezentácie prístupnosti vznikajú pri spracovaní webového dokumentu. Asistenčná technológia však pracuje s informáciami sprístupnenými prostredníctvom mechanizmov operačného systému. Prehliadač preto môže potrebovať informácie o prístupnosti prenášať medzi svojimi internými procesmi a udržiavať ich medzi nimi synchronizované.</p>
+
+          <p>Dobrým príkladom je Chromium, ktorého architektúru prístupnosti podrobnejšie opisuje dokument <a href="https://chromium.googlesource.com/chromium/src/+/main/docs/accessibility/overview.md">Chromium Accessibility Overview</a>.</p>
+
+          <p>Jedna časť prehliadača môže spracúvať samotný webový dokument a vytvárať informácie relevantné pre prístupnosť, zatiaľ čo iná časť ich môže sprístupňovať prostredníctvom accessibility API operačného systému.</p>
+
+          <p>Neznamená to teda, že sa celý DOM pri každej zmene jednoducho prenesie asistenčnej technológii. Prehliadač udržiava potrebné reprezentácie a aktualizuje tie informácie, ktoré sú z pohľadu prístupnosti relevantné.</p>
+
+          <p>Ak sa napríklad pomocou JavaScriptu zmení stav prvku:</p>
+
+          <pre><code>&lt;button aria-expanded="false" aria-controls="menu"&gt;
+  Menu
+&lt;/button&gt;</code></pre>
+
+          <p>na:</p>
+
+          <pre><code>&lt;button aria-expanded="true" aria-controls="menu"&gt;
+  Menu
+&lt;/button&gt;</code></pre>
+
+          <p>zmena vznikne vo webovom dokumente. Prehliadač ju musí premietnuť do svojej reprezentácie prístupnosti a zabezpečiť, aby bol nový stav objektu sprístupnený aj prostredníctvom príslušného accessibility API.</p>
+
+          <p>Podobne môže byť potrebné spracovať zmenu prístupného názvu objektu, hodnoty formulárového prvku, stavu začiarknutia, klávesnicového fokusu alebo dynamicky vloženého obsahu.</p>
+
+          <p>Na komunikáciu medzi jednotlivými procesmi používajú prehliadače interné mechanizmy medziprocesovej komunikácie. Chromium na tento účel používa okrem iného infraštruktúru <a href="https://chromium.googlesource.com/chromium/src/+/main/mojo/README.md">Mojo</a>.</p>
+
+          <p>Pre autora webového obsahu nie je potrebné poznať detaily tejto architektúry. Je však dôležité vedieť, že medzi zmenou HTML alebo DOM a informáciou dostupnou asistenčnej technológii môže existovať viacero ďalších technických krokov.</p>
+
+          <p>Informácia tak môže počas svojej cesty prejsť spracovaním v DOM, vytvorením alebo aktualizáciou reprezentácie prístupnosti, synchronizáciou medzi časťami prehliadača a mapovaním na platformové accessibility API.</p>
+        </section>
+
+        <section aria-labelledby="interpretacia">
+          <h2 id="interpretacia">6. Čítač obrazovky získané informácie ďalej interpretuje</h2>
+
+          <p>Čítač obrazovky spravidla nezačína pri HTML zdrojovom kóde stránky. Pracuje s informáciami, ktoré mu sprístupňuje platforma na základe reprezentácie vytvorenej prehliadačom.</p>
+
+          <p>Ak je napríklad používateľ zameraný na tlačidle:</p>
+
+          <pre><code>&lt;button&gt;Odoslať&lt;/button&gt;</code></pre>
+
+          <p>čítač obrazovky môže prostredníctvom mechanizmov prístupnosti dostať informácie, ktoré si zjednodušene predstavíme takto:</p>
+
+          <pre><code>rola: button
+názov: "Odoslať"
+focused: true</code></pre>
+
+          <p>Tieto údaje ešte neurčujú presnú vetu, ktorú používateľ napokon počuje.</p>
+
+          <p>Čítač obrazovky ich musí <strong>interpretovať a rozhodnúť, ako ich používateľovi prezentuje</strong>. Môže oznámiť názov prvku, jeho rolu a podľa potreby aj stav alebo ďalšie vlastnosti.</p>
+
+          <p>Výstup môže mať napríklad význam:</p>
+
+          <pre><code>Odoslať, tlačidlo</code></pre>
+
+          <p>Konkrétne znenie však nie je vlastnosťou HTML ani accessibility tree. Závisí od čítača obrazovky, jeho lokalizácie, používateľských nastavení, režimu práce a ďalších okolností.</p>
+
+          <p>Toto rozlíšenie je dôležité. <strong>Accessibility tree neobsahuje hotovú vetu, ktorú má čítač obrazovky prečítať.</strong> Obsahuje štruktúrované informácie o objektoch. Čítač obrazovky z týchto informácií vytvára používateľský výstup.</p>
+
+          <p>Pri rozbaľovacom tlačidle môže mať napríklad k dispozícii:</p>
+
+          <pre><code>rola: button
+názov: "Menu"
+expanded: false</code></pre>
+
+          <p>Z týchto vlastností môže vytvoriť výstup, ktorého význam bude napríklad:</p>
+
+          <pre><code>Menu, tlačidlo, zatvorené</code></pre>
+
+          <p>Ak sa hodnota <code>expanded</code> zmení na <code>true</code>, čítač obrazovky môže používateľovi oznámiť nový stav ako „otvorené“. Spôsob a okamih oznámenia však závisia od konkrétnej asistenčnej technológie.</p>
+
+          <p>Čítač obrazovky navyše nerieši iba prezentáciu aktuálne zameraného prvku. Nad informáciami sprístupnenými prehliadačom si vytvára vlastné mechanizmy práce s webovým obsahom.</p>
+
+          <p>Používateľovi môže napríklad umožniť:</p>
+
+          <ul class="plain-list">
+            <li>prechádzať medzi nadpismi,</li>
+            <li>prechádzať medzi odkazmi,</li>
+            <li>vyhľadať formulárové prvky,</li>
+            <li>navigovať medzi tabuľkami,</li>
+            <li>zobraziť zoznam určitých typov prvkov,</li>
+            <li>čítať text po znakoch, slovách alebo riadkoch,</li>
+            <li>pracovať s obsahom bez toho, aby sa na každý prvok presúval klávesnicový fokus.</li>
+          </ul>
+
+          <p>Preto treba rozlišovať aj medzi <strong>klávesnicovým fokusom stránky</strong> a pozíciou, na ktorej sa používateľ nachádza pri čítaní obsahu pomocou čítača obrazovky.</p>
+
+          <p>Používateľ môže napríklad prechádzať medzi nadpismi alebo odsekmi, hoci tieto prvky samy osebe nemusia byť zamerateľné klávesnicou.</p>
+
+          <p>S týmto rozlíšením súvisí aj oznamovanie zmien obsahu, ktoré nie sú spojené s presunom fokusu, napríklad prostredníctvom <code>aria-live</code>. Región označený ako <code>aria-live</code> môže čítač obrazovky oznámiť používateľovi aj vtedy, keď sa jeho fokus ani pozícia pri čítaní nenachádzajú v danej časti stránky. Aj tu platí, že spôsob a mieru takéhoto oznámenia určuje konkrétna asistenčná technológia a jej nastavenia.</p>
+
+          <p>Čítač obrazovky môže zároveň umožňovať nastaviť množstvo oznamovaných informácií. Používateľ si môže zvoliť podrobnejšie alebo stručnejšie oznamovanie rolí, stavov a ďalších vlastností.</p>
+
+          <p>Rovnaký objekt preto nemusí byť rôznym používateľom prezentovaný úplne rovnakým spôsobom, hoci základné informácie sprístupnené prehliadačom zostávajú rovnaké.</p>
+
+          <p>Pri testovaní prístupnosti preto nie je vhodné zamieňať <strong>výstup konkrétneho čítača obrazovky</strong> za samotnú reprezentáciu prístupnosti. Ak čítač obrazovky určitú informáciu oznámi alebo neoznámi, je užitočné rozlišovať, či:</p>
+
+          <ol class="plain-list">
+            <li>informácia vznikla správne už v HTML a DOM,</li>
+            <li>bola správne premietnutá do reprezentácie prístupnosti,</li>
+            <li>bola správne sprístupnená prostredníctvom accessibility API,</li>
+            <li>a až následne, ako s ňou pracuje konkrétna asistenčná technológia.</li>
+          </ol>
+
+          <p>Takéto rozlíšenie pomáha pri diagnostike určiť, <strong>v ktorej vrstve celého reťazca problém skutočne vzniká</strong>.</p>
+
+          <p>Každú z týchto vrstiev možno pri diagnostike overiť aj samostatne:</p>
+
+          <ul class="plain-list">
+            <li><strong>DOM</strong> – vývojárske nástroje prehliadača, panel Elements.</li>
+            <li><strong>Reprezentácia prístupnosti</strong> – panel Accessibility vo vývojárskych nástrojoch prehliadača alebo nástroje ako Accessibility Insights for Web.</li>
+            <li><strong>Platformové accessibility API</strong> – napríklad Accessibility Insights for Windows alebo Inspect.exe na Windows, Accessibility Inspector na macOS.</li>
+            <li><strong>Výstup asistenčnej technológie</strong> – napríklad Speech Viewer alebo log v NVDA, ktorý zobrazuje, čo bolo používateľovi skutočne oznámené.</li>
+          </ul>
+
+          <p>Ak sa výsledok medzi dvomi susednými vrstvami líši od očakávania, problém sa s vysokou pravdepodobnosťou nachádza práve na rozhraní medzi nimi.</p>
+        </section>
+
+        <section aria-labelledby="vystup">
+          <h2 id="vystup">7. Výsledkom nemusí byť iba syntetizovaná reč</h2>
+
+          <p>Pojem „čítač obrazovky“ môže vytvárať predstavu, že výsledkom jeho práce je vždy hlas. Syntetizovaná reč je síce veľmi častým spôsobom prezentácie informácií, ale nie je jediným možným výstupom.</p>
+
+          <p>Čítač obrazovky pracuje so štruktúrovanými informáciami o objektoch a následne ich môže používateľovi sprostredkovať rôznymi spôsobmi. Najčastejšie ide o <strong>hlasový výstup, braillový výstup alebo ich kombináciu</strong>.</p>
+
+          <h3 id="hlasovy-vystup">Hlasový výstup</h3>
+
+          <p>Pri hlasovom výstupe čítač obrazovky pripraví informáciu, ktorá má byť používateľovi oznámená, a odovzdá ju syntetizátoru reči.</p>
+
+          <p>Ak má napríklad k dispozícii objekt:</p>
+
+          <pre><code>heading
+  level: 1
+  názov: "Nadpis"</code></pre>
+
+          <p>môže používateľovi sprostredkovať informáciu, ktorej význam zodpovedá napríklad:</p>
+
+          <pre><code>Nadpis, nadpis prvej úrovne</code></pre>
+
+          <p>Syntetizátor reči následne túto informáciu prevedie do zvukovej podoby.</p>
+
+          <p>Výsledná výslovnosť môže byť ovplyvnená viacerými informáciami. Jednou z nich je jazyk obsahu.</p>
+
+          <p>Ak je dokument správne označený napríklad:</p>
+
+          <pre><code>&lt;html lang="sk"&gt;</code></pre>
+
+          <p>informácia o jazyku môže byť súčasťou reprezentácie prístupnosti a asistenčná technológia ju môže využiť pri výbere zodpovedajúcej výslovnosti alebo hlasu.</p>
+
+          <p>Atribút, ktorý sa pôvodne nachádza v HTML dokumente, tak môže mať dôsledok až na výsledný hlasový výstup.</p>
+
+          <h3 id="braillovy-vystup">Braillový výstup</h3>
+
+          <p>Informácie nemusia byť používateľovi prezentované iba zvukom. Čítač obrazovky môže spolupracovať aj s <strong>obnoviteľným braillovým riadkom</strong>.</p>
+
+          <p>Braillový riadok je hardvérové zariadenie tvorené sústavou braillových buniek s mechanicky ovládanými bodmi. Jednotlivé body sa podľa zobrazovaných znakov zdvíhajú a klesajú, vďaka čomu môže používateľ informácie čítať hmatom.</p>
+
+          <p>Je dôležité rozlišovať medzi zariadením a spôsobom prezentácie. <strong>Braillový riadok je zariadenie, zatiaľ čo braillový výstup je spôsob, akým sú na tomto zariadení informácie používateľovi prezentované.</strong></p>
+
+          <p>Ak sa na stránke nachádza napríklad:</p>
+
+          <pre><code>&lt;p&gt;Odsek&lt;/p&gt;</code></pre>
+
+          <p>text „Odsek“ môže byť prostredníctvom reprezentácie prístupnosti a čítača obrazovky sprostredkovaný používateľovi hlasovým výstupom, braillovým výstupom alebo oboma spôsobmi súčasne.</p>
+
+          <p>Braillový výstup pritom nemusí byť iba doslovným prepisom hlasového výstupu. Čítač obrazovky môže pre braillový riadok vytvárať samostatnú reprezentáciu informácií a používať skratky alebo špecifické označenia rolí a stavov.</p>
+
+          <p>Konkrétna podoba braillového výstupu preto môže závisieť od čítača obrazovky, jeho nastavení, použitej braillovskej tabuľky, vlastností pripojeného zariadenia a ďalších okolností.</p>
+
+          <h3 id="informacia-vs-prezentacia">Informácia a jej prezentácia nie sú to isté</h3>
+
+          <p>Na konci celého procesu je potrebné rozlišovať medzi <strong>informáciou sprístupnenou asistenčnej technológii</strong> a <strong>spôsobom, akým ju asistenčná technológia prezentuje používateľovi</strong>.</p>
+
+          <p>Prehliadač a platformové accessibility API môžu sprístupniť napríklad:</p>
+
+          <pre><code>rola: heading
+úroveň: 1
+názov: "Nadpis"
+jazyk: sk</code></pre>
+
+          <p>Čítač obrazovky môže tieto údaje použiť na vytvorenie hlasového výstupu, braillového výstupu alebo oboch súčasne. Nemusí pritom všetky dostupné vlastnosti prezentovať rovnakým spôsobom ani v rovnakom poradí.</p>
+
+          <p><strong>HTML teda nie je hlasový ani braillový výstup. Accessibility tree tiež nie je hotový výstup pre používateľa. Ide o štruktúrované informácie, ktoré počas celej cesty prechádzajú spracovaním a mapovaním a až asistenčná technológia z nich vytvára výslednú prezentáciu pre používateľa.</strong></p>
+        </section>
+
+        <section aria-labelledby="kvalita-retazca">
+          <h2 id="kvalita-retazca">8. Kvalita celého reťazca sa začína v kóde</h2>
+
+          <p>Skutočnosť, že medzi HTML a čítačom obrazovky existuje niekoľko technologických vrstiev, neznamená, že autor webového obsahu musí poznať implementačné detaily každého prehliadača, operačného systému a čítača obrazovky.</p>
+
+          <p>Najspoľahlivejším východiskom je používanie štandardných webových technológií spôsobom, na ktorý boli navrhnuté, a dodržiavanie pravidiel a požiadaviek príslušných špecifikácií tak, aby bol výsledný kód validný.</p>
+
+          <p>Rôzne spôsoby implementácie rovnakého používateľského rozhrania totiž nemusia mať rovnakú úroveň podpory vo všetkých kombináciách prehliadačov a asistenčných technológií.</p>
+
+          <p>Tlačidlo možno napríklad vytvoriť ako natívny HTML element:</p>
+
+          <pre><code>&lt;button&gt;Uložiť&lt;/button&gt;</code></pre>
+
+          <p>Na prvý pohľad podobný komponent možno vytvoriť aj takto:</p>
+
+          <pre><code>&lt;div role="button" tabindex="0"&gt;
+  Uložiť
+&lt;/div&gt;</code></pre>
+
+          <p>Tieto implementácie však nie sú rovnocenné.</p>
+
+          <p>Natívny element <code>button</code> má svoju sémantiku, zamerateľnosť a základné interakčné správanie definované samotným HTML. Pri všeobecnom elemente <code>div</code> musí autor potrebné vlastnosti a správanie zabezpečiť sám.</p>
+
+          <p>ARIA môže doplniť alebo upraviť informácie o sémantike prvku, ale sama osebe nevytvára všetko správanie natívneho HTML ovládacieho prvku.</p>
+
+          <p>Pri používaní ARIA je preto vhodné vychádzať z princípov opísaných v dokumente <a href="https://www.w3.org/TR/using-aria/">Using ARIA</a> a v <a href="https://www.w3.org/WAI/ARIA/apg/">ARIA Authoring Practices Guide</a>.</p>
+
+          <h3 id="pravidlo-1">8.1 Uprednostnenie natívnych HTML prvkov (1. pravidlo ARIA)</h3>
+
+          <p>Prvé pravidlo používania ARIA je zároveň najdôležitejšie. Ak HTML poskytuje element alebo atribút, ktorý už obsahuje požadovanú sémantiku a správanie, má dostať prednosť pred vytváraním vlastnej alternatívy pomocou ARIA.</p>
+
+          <p>Namiesto:</p>
+
+          <pre><code>&lt;div role="button" tabindex="0"&gt;
+  Uložiť
+&lt;/div&gt;</code></pre>
+
+          <p>je preto vhodnejšie použiť:</p>
+
+          <pre><code>&lt;button&gt;Uložiť&lt;/button&gt;</code></pre>
+
+          <p>Rozdiel nie je iba v množstve kódu. Natívne tlačidlo už poskytuje sémantiku a základné správanie, ktoré by pri vlastnom komponente musel zabezpečiť autor.</p>
+
+          <p><code>role="button"</code> môže ovplyvniť spôsob, akým je objekt exponovaný asistenčným technológiám, ale automaticky z elementu <code>div</code> nevytvorí natívne HTML tlačidlo.</p>
+
+          <h3 id="pravidlo-2">8.2 Zachovanie natívnej sémantiky HTML prvkov (2. pravidlo ARIA)</h3>
+
+          <p>HTML elementy už majú vlastnú sémantiku. Ak ju prepíšeme pomocou ARIA role, výsledná reprezentácia objektu sa môže začať odchyľovať od jeho pôvodného významu.</p>
+
+          <p>Problematický môže byť napríklad zápis:</p>
+
+          <pre><code>&lt;h2 role="tab"&gt;
+  Nastavenia
+&lt;/h2&gt;</code></pre>
+
+          <p>Element <code>h2</code> má natívnu sémantiku nadpisu, zatiaľ čo <code>role="tab"</code> mu priraďuje inú rolu.</p>
+
+          <p>Dokument <a href="https://www.w3.org/TR/using-aria/">Using ARIA</a> preto upozorňuje, že natívna sémantika HTML by sa nemala meniť bez skutočnej potreby.</p>
+
+          <h3 id="pravidlo-3">8.3 Zabezpečenie ovládateľnosti interaktívnych ARIA komponentov klávesnicou (3. pravidlo ARIA)</h3>
+
+          <p>Ak autor vytvorí vlastný interaktívny komponent pomocou ARIA, nestačí zabezpečiť iba jeho správnu reprezentáciu pre asistenčné technológie. Musí implementovať aj zodpovedajúce interakčné správanie.</p>
+
+          <p>Napríklad:</p>
+
+          <pre><code>&lt;div role="button" tabindex="0"&gt;
+  Uložiť
+&lt;/div&gt;</code></pre>
+
+          <p>môže byť zamerateľný a exponovaný s rolou tlačidla. To však samo osebe nezabezpečuje, že sa bude správať ako natívne tlačidlo.</p>
+
+          <p>Pri vlastnom prvku s <code>role="button"</code> musí autor zabezpečiť aj očakávanú klávesnicovú interakciu. <a href="https://www.w3.org/WAI/ARIA/apg/patterns/button/">ARIA Authoring Practices Guide pre Button Pattern</a> opisuje aktiváciu tlačidla pomocou klávesov <code>Enter</code> a <code>Space</code>.</p>
+
+          <p>Natívny <code>button</code> toto základné správanie poskytuje automaticky. Pri vlastnom komponente za jeho implementáciu zodpovedá autor.</p>
+
+          <h3 id="pravidlo-4">8.4 Exponovanie zamerateľných prvkov asistenčným technológiám (4. pravidlo ARIA)</h3>
+
+          <p>Ďalšie pravidlo upozorňuje na konflikt medzi zamerateľnosťou prvku a jeho odstránením z reprezentácie prístupnosti.</p>
+
+          <p>Problematický je napríklad zápis:</p>
+
+          <pre><code>&lt;button aria-hidden="true"&gt;
+  Pokračovať
+&lt;/button&gt;</code></pre>
+
+          <p>Rovnaký problém môže vzniknúť aj nepriamo:</p>
+
+          <pre><code>&lt;div aria-hidden="true"&gt;
+  &lt;button&gt;Pokračovať&lt;/button&gt;
+&lt;/div&gt;</code></pre>
+
+          <p>V druhom prípade sa <code>aria-hidden="true"</code> vzťahuje aj na potomkov rodičovského elementu. Interaktívny prvok sa tak môže dostať do situácie, v ktorej je súčasťou klávesnicovej interakcie, ale nie je zodpovedajúcim spôsobom exponovaný asistenčným technológiám.</p>
+
+          <p><code>aria-hidden="true"</code> sa preto nemá používať na zamerateľných elementoch ani spôsobom, ktorým sa z reprezentácie prístupnosti odstránia ich zamerateľní potomkovia.</p>
+
+          <h3 id="pravidlo-5">8.5 Zabezpečenie prístupného názvu interaktívnych prvkov (5. pravidlo ARIA)</h3>
+
+          <p>Interaktívny prvok potrebuje nielen správnu rolu a správanie, ale aj názov, prostredníctvom ktorého môže používateľ pochopiť jeho účel.</p>
+
+          <p>Napríklad ikonové tlačidlo bez textového obsahu:</p>
+
+          <pre><code>&lt;button&gt;
+  &lt;svg aria-hidden="true"&gt;
+    ...
+  &lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+
+          <p>môže mať správnu natívnu rolu tlačidla a môže byť ovládateľné klávesnicou, no bez ďalšej informácie nemusí mať použiteľný prístupný názov.</p>
+
+          <p>Jedným z možných riešení je:</p>
+
+          <pre><code>&lt;button aria-label="Zavrieť"&gt;
+  &lt;svg aria-hidden="true"&gt;
+    ...
+  &lt;/svg&gt;
+&lt;/button&gt;</code></pre>
+
+          <p>V tomto prípade <code>aria-label</code> poskytuje tlačidlu prístupný názov „Zavrieť“, zatiaľ čo samotná ikona je skrytá pred asistenčnými technológiami.</p>
+
+          <p>Aj tu však platí základná zásada, že ARIA má byť použitá tam, kde je potrebná. Ak tlačidlo už obsahuje vhodný text, jeho prístupný názov možno odvodiť z natívneho obsahu bez pridávania <code>aria-label</code>.</p>
+
+          <h3 id="zaver-semantika">8.6 Uprednostnenie natívnej sémantiky a správania pred vlastnou implementáciou</h3>
+
+          <p>Čím viac sémantiky a správania poskytuje natívne HTML, tým menej zodpovednosti zostáva na autorovi komponentu. Pri vlastnom ARIA komponente musí autor sám zabezpečiť, aby sa zhodovala jeho vizuálna podoba, deklarovaná rola, aktuálny stav, klávesnicové správanie aj informácie napokon exponované prostredníctvom accessibility API — a ani technicky správna implementácia pritom nezaručuje identické správanie vo všetkých kombináciách prehliadača, operačného systému a asistenčnej technológie.</p>
+
+          <p><strong>Najskôr využiť sémantiku a správanie, ktoré poskytuje samotné HTML, a ARIA pridávať až tam, kde je skutočne potrebná.</strong></p>
+
+          <p>Cesta od HTML k hlasu sa preto nezačína v čítači obrazovky. Začína už rozhodnutím autora, aký element použije v zdrojovom kóde.</p>
+
+          <p>Kvalitná sémantika vytvára základ, z ktorého môže vzniknúť zmysluplná reprezentácia prístupnosti. Tá môže byť prostredníctvom platformových mechanizmov sprístupnená asistenčnej technológii a napokon prezentovaná používateľovi prostredníctvom hlasového alebo braillového výstupu.</p>
+        </section>
+
+      </article>
+    </div>
+  </main>
+
+  <footer class="site">
+    <div class="wrap">
+      <p>Autor: <a href="https://rraddatch.github.io/sk/" rel="author">Radoslav Ďurač</a>, Bratislava, Slovensko.</p>
+      <p>Táto stránka je navrhnutá v súlade s WCAG 2.2 na úrovni A a AA.</p>
+      <p><a href="https://rraddatch.github.io/sk/blog/">Ďalšie články na blogu</a> · <a href="https://rraddatch.github.io/sk/">Späť na domovskú stránku</a></p>
+    </div>
+  </footer>
+</body>
+</html>

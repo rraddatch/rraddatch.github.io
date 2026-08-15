@@ -151,24 +151,28 @@
       padding: 0 1.4rem;
     }
 
-    .lang-switch {
+    .lang-switch,
+    .site-nav {
       padding: 0.9rem 0;
       border-bottom: 1px solid var(--line);
       font-size: 0.85rem;
     }
-    .lang-switch ul {
+    .lang-switch ul,
+    .site-nav ul {
       list-style: none;
       display: flex;
       gap: 1.1rem;
       margin: 0;
       padding: 0;
     }
-    .lang-switch a {
+    .lang-switch a,
+    .site-nav a {
       font-weight: 700;
       color: var(--ink-soft);
       text-decoration-thickness: 1px;
     }
-    .lang-switch [aria-current="page"] {
+    .lang-switch [aria-current="page"],
+    .site-nav [aria-current="page"] {
       color: var(--ink);
       border-bottom: 2px solid var(--accent);
       padding-bottom: 0.15rem;
@@ -296,6 +300,13 @@
 </head>
 <body>
   <a class="skip-link" href="#obsah">Preskočiť na obsah</a>
+
+  <nav class="site-nav wrap" aria-label="Hlavná navigácia">
+    <ul>
+      <li><span aria-current="page">Domov</span></li>
+      <li><a href="https://rraddatch.github.io/sk/blog/">Blog</a></li>
+    </ul>
+  </nav>
 
   <nav class="lang-switch wrap" aria-label="Jazyk">
     <ul>

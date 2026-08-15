@@ -12,6 +12,11 @@ Radoslav Ďurač sa venuje prístupnosti webových sídel, mobilných aplikáci�
 - [about.me](https://about.me/radoslav-durac): rozcestník odkazov
 - [CodePen](https://codepen.io/radoslavdurac): ukážky kódu
 
+## Blog
+
+- [Blog](https://rraddatch.github.io/sk/blog/): články o digitálnej prístupnosti
+- [Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky](https://rraddatch.github.io/sk/blog/od-html-k-hlasu/) (2026-08-15): cesta informácie od HTML kódu cez DOM, accessibility tree a platformové accessibility API až k čítaču obrazovky a jeho hlasovému alebo braillovému výstupu
+
 ## Open source a projekty
 
 - [Able Player](https://github.com/ableplayer/ableplayer): autor slovenského prekladu open source prístupného mediálneho prehrávača a oprava chyby vo funkcii getTranslationText(), príspevok je uvedený v changelogu verzie 5.0.0

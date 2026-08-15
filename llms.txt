@@ -12,6 +12,11 @@ Radoslav Ďurač works on the accessibility of websites, mobile applications, no
 - [about.me](https://about.me/radoslav-durac): link hub
 - [CodePen](https://codepen.io/radoslavdurac): code samples
 
+## Blog
+
+- [Blog](https://rraddatch.github.io/sk/blog/) (in Slovak): articles on digital accessibility
+- [Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky](https://rraddatch.github.io/sk/blog/od-html-k-hlasu/) (2026-08-15, in Slovak): the path an information takes from HTML source code through the DOM, accessibility tree and platform accessibility APIs to a screen reader's speech or braille output
+
 ## Open source and projects
 
 - [Able Player](https://github.com/ableplayer/ableplayer): author of the Slovak translation for the open source accessible media player, and fix for a bug in the getTranslationText() function; the contribution is listed in the changelog for version 5.0.0
