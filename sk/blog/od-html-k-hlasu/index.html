@@ -3,18 +3,18 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky | Radoslav Ďurač</title>
+  <title>Cesta medzi zdrojovým kódom a čítačom obrazovky | Radoslav Ďurač</title>
   <meta name="description" content="Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.">
   <meta name="author" content="Radoslav Ďurač">
   <meta property="og:type" content="article">
-  <meta property="og:title" content="Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky">
+  <meta property="og:title" content="Cesta medzi zdrojovým kódom a čítačom obrazovky">
   <meta property="og:description" content="Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.">
   <meta property="og:locale" content="sk_SK">
   <meta property="og:url" content="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
   <meta property="article:published_time" content="2026-08-15">
   <meta property="article:author" content="https://rraddatch.github.io/sk/">
   <meta name="twitter:card" content="summary">
-  <meta name="twitter:title" content="Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky">
+  <meta name="twitter:title" content="Cesta medzi zdrojovým kódom a čítačom obrazovky">
   <meta name="twitter:description" content="Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.">
 
   <link rel="canonical" href="https://rraddatch.github.io/sk/blog/od-html-k-hlasu/">
@@ -42,7 +42,7 @@
       {
         "@type": "BlogPosting",
         "@id": "https://rraddatch.github.io/sk/blog/od-html-k-hlasu/#article",
-        "headline": "Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky",
+        "headline": "Cesta medzi zdrojovým kódom a čítačom obrazovky",
         "description": "Prečo čítač obrazovky nečíta priamo HTML: cesta informácie cez DOM, accessibility tree a platformové accessibility API až k hlasovému a braillovému výstupu.",
         "inLanguage": "sk",
         "datePublished": "2026-08-15",
@@ -63,7 +63,7 @@
         "itemListElement": [
           { "@type": "ListItem", "position": 1, "name": "Domov", "item": "https://rraddatch.github.io/sk/" },
           { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://rraddatch.github.io/sk/blog/" },
-          { "@type": "ListItem", "position": 3, "name": "Od HTML k hlasu", "item": "https://rraddatch.github.io/sk/blog/od-html-k-hlasu/" }
+          { "@type": "ListItem", "position": 3, "name": "Cesta medzi zdrojovým kódom a čítačom obrazovky", "item": "https://rraddatch.github.io/sk/blog/od-html-k-hlasu/" }
         ]
       }
     ]
@@ -254,14 +254,18 @@
     figure.diagram {
       margin: 0 0 1.6rem;
     }
-    .diagram-slot {
-      border: 2px dashed var(--line);
-      border-radius: 0.6rem;
-      padding: 2.6rem 1.2rem;
-      text-align: center;
-      color: var(--ink-soft);
-      font-weight: 700;
+    .diagram-frame {
       background: var(--bg-panel);
+      border: 1px solid var(--line);
+      border-radius: 0.6rem;
+      padding: 1.2rem;
+      color: var(--ink);
+    }
+    .diagram-frame svg,
+    .diagram-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
     }
     figcaption {
       margin-top: 0.6rem;
@@ -280,12 +284,13 @@
       font-size: 1.05rem;
       margin: 0 0 0.8rem;
     }
-    nav.toc ol {
+    nav.toc ul {
+      list-style: none;
       margin: 0;
-      padding-left: 1.3rem;
+      padding-left: 0.2rem;
     }
     nav.toc li { margin: 0.35rem 0; }
-    nav.toc ol ol {
+    nav.toc ul ul {
       margin-top: 0.35rem;
       padding-left: 1.2rem;
     }
@@ -313,14 +318,14 @@
     <ol>
       <li><a href="https://rraddatch.github.io/sk/">Domov</a></li>
       <li><a href="https://rraddatch.github.io/sk/blog/">Blog</a></li>
-      <li><span aria-current="page">Od HTML k hlasu</span></li>
+      <li><span aria-current="page">Cesta medzi zdrojovým kódom a čítačom obrazovky</span></li>
     </ol>
   </nav>
 
   <header class="post">
     <div class="wrap">
       <p class="eyebrow">Blog · Digitálna prístupnosť</p>
-      <h1>Od HTML k hlasu: cesta medzi zdrojovým kódom a čítačom obrazovky</h1>
+      <h1>Cesta medzi zdrojovým kódom a čítačom obrazovky</h1>
       <p class="lede">Ako sa HTML mení na DOM, accessibility tree a napokon na hlasový alebo braillový výstup čítača obrazovky — a prečo to nie je len „čítanie HTML“.</p>
       <p class="byline">
         <a href="https://rraddatch.github.io/sk/" rel="author">Radoslav Ďurač</a>
@@ -349,39 +354,39 @@
 
         <nav class="toc" aria-labelledby="toc-heading">
           <h2 id="toc-heading">Obsah</h2>
-          <ol>
-            <li><a href="#dom">Z HTML sa stáva DOM</a></li>
-            <li><a href="#accessibility-tree">Z DOM vzniká reprezentácia pre prístupnosť</a>
-              <ol>
-                <li><a href="#dom-vs-tree">Nie všetko z DOM musí byť exponované v accessibility tree</a></li>
-              </ol>
+          <ul>
+            <li><a href="#dom">1. Z HTML sa stáva DOM</a></li>
+            <li><a href="#accessibility-tree">2. Z DOM vzniká reprezentácia pre prístupnosť</a>
+              <ul>
+                <li><a href="#dom-vs-tree">2.1 Nie všetko z DOM musí byť exponované v accessibility tree</a></li>
+              </ul>
             </li>
-            <li><a href="#pristupny-nazov">Prístupný názov nie je vždy text, ktorý vidíme v HTML</a>
-              <ol>
-                <li><a href="#nazov-vs-popis">Prístupný názov a prístupný popis nie sú totožné</a></li>
-              </ol>
+            <li><a href="#pristupny-nazov">3. Prístupný názov nie je vždy text, ktorý vidíme v HTML</a>
+              <ul>
+                <li><a href="#nazov-vs-popis">3.1 Prístupný názov a prístupný popis nie sú totožné</a></li>
+              </ul>
             </li>
-            <li><a href="#accessibility-api">Accessibility API prepája prehliadač s operačným systémom</a></li>
-            <li><a href="#viacprocesovy-prehliadac">V modernom prehliadači nemusí celý proces prebiehať v jednom procese</a></li>
-            <li><a href="#interpretacia">Čítač obrazovky získané informácie ďalej interpretuje</a></li>
-            <li><a href="#vystup">Výsledkom nemusí byť iba syntetizovaná reč</a>
-              <ol>
+            <li><a href="#accessibility-api">4. Accessibility API prepája prehliadač s operačným systémom</a></li>
+            <li><a href="#viacprocesovy-prehliadac">5. V modernom prehliadači nemusí celý proces prebiehať v jednom procese</a></li>
+            <li><a href="#interpretacia">6. Čítač obrazovky získané informácie ďalej interpretuje</a></li>
+            <li><a href="#vystup">7. Výsledkom nemusí byť iba syntetizovaná reč</a>
+              <ul>
                 <li><a href="#hlasovy-vystup">Hlasový výstup</a></li>
                 <li><a href="#braillovy-vystup">Braillový výstup</a></li>
                 <li><a href="#informacia-vs-prezentacia">Informácia a jej prezentácia nie sú to isté</a></li>
-              </ol>
+              </ul>
             </li>
-            <li><a href="#kvalita-retazca">Kvalita celého reťazca sa začína v kóde</a>
-              <ol>
-                <li><a href="#pravidlo-1">Uprednostnenie natívnych HTML prvkov (1. pravidlo ARIA)</a></li>
-                <li><a href="#pravidlo-2">Zachovanie natívnej sémantiky HTML prvkov (2. pravidlo ARIA)</a></li>
-                <li><a href="#pravidlo-3">Zabezpečenie ovládateľnosti interaktívnych ARIA komponentov klávesnicou (3. pravidlo ARIA)</a></li>
-                <li><a href="#pravidlo-4">Exponovanie zamerateľných prvkov asistenčným technológiám (4. pravidlo ARIA)</a></li>
-                <li><a href="#pravidlo-5">Zabezpečenie prístupného názvu interaktívnych prvkov (5. pravidlo ARIA)</a></li>
-                <li><a href="#zaver-semantika">Uprednostnenie natívnej sémantiky a správania pred vlastnou implementáciou</a></li>
-              </ol>
+            <li><a href="#kvalita-retazca">8. Kvalita celého reťazca sa začína v kóde</a>
+              <ul>
+                <li><a href="#pravidlo-1">8.1 Uprednostnenie natívnych HTML prvkov (1. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-2">8.2 Zachovanie natívnej sémantiky HTML prvkov (2. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-3">8.3 Zabezpečenie ovládateľnosti interaktívnych ARIA komponentov klávesnicou (3. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-4">8.4 Exponovanie zamerateľných prvkov asistenčným technológiám (4. pravidlo ARIA)</a></li>
+                <li><a href="#pravidlo-5">8.5 Zabezpečenie prístupného názvu interaktívnych prvkov (5. pravidlo ARIA)</a></li>
+                <li><a href="#zaver-semantika">8.6 Uprednostnenie natívnej sémantiky a správania pred vlastnou implementáciou</a></li>
+              </ul>
             </li>
-          </ol>
+          </ul>
         </nav>
 
         <section aria-labelledby="dom">
@@ -407,8 +412,150 @@
           <p>Prehliadač z neho vytvorí stromovú štruktúru. Objekt <code>Document</code> obsahuje koreňový element <code>html</code>. Element <code>html</code> má v tomto príklade dvoch priamych potomkov, <code>head</code> a <code>body</code>. Element <code>head</code> obsahuje <code>title</code>, ktorého textovým obsahom je „Môj dokument“. Element <code>body</code> obsahuje element <code>h1</code> s textom „Nadpis“ a element <code>p</code> s textom „Odsek“.</p>
 
           <figure class="diagram">
-            <div class="diagram-slot" aria-hidden="true">Diagram</div>
-            <figcaption>DOM diagram uvedeného HTML dokumentu. (Obrázok bude doplnený.)</figcaption>
+            <div class="diagram-frame">
+              <svg xmlns="http://www.w3.org/2000/svg"
+                   viewBox="0 0 1200 820"
+                   role="graphics-document"
+                   aria-labelledby="dom-title dom-desc">
+
+                <title id="dom-title">DOM strom ukážkového HTML dokumentu</title>
+                <desc id="dom-desc">
+                  Diagram zobrazuje hierarchickú štruktúru DOM vytvorenú z HTML dokumentu.
+                  Koreňovým objektom je Document. Jeho potomkom je element html s atribútom lang rovný sk.
+                  Element html má dvoch priamych potomkov: head a body.
+                  Element head obsahuje element title, ktorý obsahuje textový uzol Môj dokument.
+                  Element body obsahuje element h1 s textovým uzlom Nadpis a element p s textovým uzlom Odsek.
+                  Plné spojnice so šípkou znázorňujú vzťah rodiča a potomka.
+                  Textové uzly sú vizuálne odlíšené oválnym tvarom a prerušovaným rámom.
+                </desc>
+
+                <defs>
+                  <marker id="dom-arrow"
+                          viewBox="0 0 10 10"
+                          refX="9"
+                          refY="5"
+                          markerWidth="8"
+                          markerHeight="8"
+                          orient="auto">
+                    <path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/>
+                  </marker>
+
+                  <style>
+                    #dom-diagram text {
+                      font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+                      fill: currentColor;
+                    }
+                    #dom-diagram .document-node { fill: white; stroke: currentColor; stroke-width: 4; }
+                    #dom-diagram .document-inner { fill: none; stroke: currentColor; stroke-width: 1.5; }
+                    #dom-diagram .element-node { fill: white; stroke: currentColor; stroke-width: 3; }
+                    #dom-diagram .text-node { fill: white; stroke: currentColor; stroke-width: 3; stroke-dasharray: 10 7; }
+                    #dom-diagram .edge { fill: none; stroke: currentColor; stroke-width: 3; marker-end: url(#dom-arrow); }
+                    #dom-diagram .node-title { font-size: 27px; font-weight: 700; }
+                    #dom-diagram .attribute { font-size: 19px; }
+                    #dom-diagram .text-label { font-size: 21px; font-weight: 600; }
+                  </style>
+                </defs>
+
+                <g id="dom-diagram">
+
+                <!-- Spojnice sú dekoratívne; ich význam je opísaný pri objektoch a v popise SVG. -->
+                <g aria-hidden="true">
+                  <path class="edge" d="M600 130 L600 190"/>
+                  <path class="edge" d="M600 310 L600 365 L300 365 L300 420"/>
+                  <path class="edge" d="M600 310 L600 365 L900 365 L900 420"/>
+                  <path class="edge" d="M300 520 L300 570"/>
+                  <path class="edge" d="M900 520 L900 565 L760 565 L760 610"/>
+                  <path class="edge" d="M900 520 L900 565 L1040 565 L1040 610"/>
+                  <path class="edge" d="M300 690 L300 725"/>
+                  <path class="edge" d="M760 690 L760 725"/>
+                  <path class="edge" d="M1040 690 L1040 725"/>
+                </g>
+
+                <!-- Document -->
+                <g role="graphics-object" aria-labelledby="document-title document-desc">
+                  <title id="document-title">Document</title>
+                  <desc id="document-desc">Koreňový objekt DOM. Jeho priamym potomkom je element html.</desc>
+                  <rect class="document-node" x="485" y="40" width="230" height="90" rx="16"/>
+                  <rect class="document-inner" x="495" y="50" width="210" height="70" rx="11"/>
+                  <text class="node-title" x="600" y="95" text-anchor="middle">Document</text>
+                </g>
+
+                <!-- HTML -->
+                <g role="graphics-object" aria-labelledby="html-title html-desc">
+                  <title id="html-title">Element html</title>
+                  <desc id="html-desc">Element html je potomkom objektu Document. Má atribút lang s hodnotou sk. Jeho priamymi potomkami sú elementy head a body.</desc>
+                  <rect class="element-node" x="475" y="190" width="250" height="120" rx="16"/>
+                  <text class="node-title" x="600" y="235" text-anchor="middle">html</text>
+                  <line x1="505" y1="255" x2="695" y2="255" stroke="currentColor" stroke-width="2"/>
+                  <text class="attribute" x="600" y="290" text-anchor="middle">lang="sk"</text>
+                </g>
+
+                <!-- HEAD -->
+                <g role="graphics-object" aria-labelledby="head-title head-desc">
+                  <title id="head-title">Element head</title>
+                  <desc id="head-desc">Element head je potomkom elementu html. Jeho priamym potomkom je element title.</desc>
+                  <rect class="element-node" x="190" y="420" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="300" y="480" text-anchor="middle">head</text>
+                </g>
+
+                <!-- BODY -->
+                <g role="graphics-object" aria-labelledby="body-title body-desc">
+                  <title id="body-title">Element body</title>
+                  <desc id="body-desc">Element body je potomkom elementu html. Jeho priamymi potomkami sú elementy h1 a p.</desc>
+                  <rect class="element-node" x="790" y="420" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="900" y="480" text-anchor="middle">body</text>
+                </g>
+
+                <!-- TITLE -->
+                <g role="graphics-object" aria-labelledby="title-title title-desc">
+                  <title id="title-title">Element title</title>
+                  <desc id="title-desc">Element title je potomkom elementu head. Obsahuje textový uzol Môj dokument.</desc>
+                  <rect class="element-node" x="190" y="590" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="300" y="650" text-anchor="middle">title</text>
+                </g>
+
+                <!-- H1 -->
+                <g role="graphics-object" aria-labelledby="h1-title h1-desc">
+                  <title id="h1-title">Element h1</title>
+                  <desc id="h1-desc">Element h1 je potomkom elementu body. Obsahuje textový uzol Nadpis.</desc>
+                  <rect class="element-node" x="650" y="590" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="760" y="650" text-anchor="middle">h1</text>
+                </g>
+
+                <!-- P -->
+                <g role="graphics-object" aria-labelledby="p-title p-desc">
+                  <title id="p-title">Element p</title>
+                  <desc id="p-desc">Element p je potomkom elementu body. Obsahuje textový uzol Odsek.</desc>
+                  <rect class="element-node" x="930" y="590" width="220" height="100" rx="16"/>
+                  <text class="node-title" x="1040" y="650" text-anchor="middle">p</text>
+                </g>
+
+                <!-- Textové uzly -->
+                <g role="graphics-object" aria-labelledby="text-document-title text-document-desc">
+                  <title id="text-document-title">Textový uzol Môj dokument</title>
+                  <desc id="text-document-desc">Textový obsah elementu title.</desc>
+                  <rect class="text-node" x="175" y="725" width="250" height="70" rx="35"/>
+                  <text class="text-label" x="300" y="768" text-anchor="middle">"Môj dokument"</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="text-heading-title text-heading-desc">
+                  <title id="text-heading-title">Textový uzol Nadpis</title>
+                  <desc id="text-heading-desc">Textový obsah elementu h1.</desc>
+                  <rect class="text-node" x="650" y="725" width="220" height="70" rx="35"/>
+                  <text class="text-label" x="760" y="768" text-anchor="middle">"Nadpis"</text>
+                </g>
+
+                <g role="graphics-object" aria-labelledby="text-paragraph-title text-paragraph-desc">
+                  <title id="text-paragraph-title">Textový uzol Odsek</title>
+                  <desc id="text-paragraph-desc">Textový obsah elementu p.</desc>
+                  <rect class="text-node" x="930" y="725" width="220" height="70" rx="35"/>
+                  <text class="text-label" x="1040" y="768" text-anchor="middle">"Odsek"</text>
+                </g>
+
+                </g>
+              </svg>
+            </div>
+            <figcaption>DOM diagram uvedeného HTML dokumentu.</figcaption>
           </figure>
 
           <p>DOM teda nezachytáva iba samotné elementy. Zachytáva aj ich hierarchické vzťahy. Každý uzol môže mať rodiča, potomkov a súrodencov na rovnakej úrovni stromu. Text nachádzajúci sa vo vnútri elementov je reprezentovaný textovými uzlami.</p>
@@ -433,9 +580,107 @@
 
           <p>Spôsob, akým sa HTML elementy a atribúty mapujú na platformové accessibility API, opisuje <a href="https://www.w3.org/TR/html-aam-1.0/">HTML Accessibility API Mappings</a>. Všeobecnejšie pravidlá mapovania webových technológií na platformové accessibility API opisuje <a href="https://www.w3.org/TR/core-aam-1.2/">Core Accessibility API Mappings</a>.</p>
 
-          <figure class="diagram">
-            <div class="diagram-slot" aria-hidden="true">Diagram</div>
-            <figcaption>Accessibility tree diagram s objektmi <code>document</code>, <code>heading</code>, <code>paragraph</code> a príslušnými textovými objektmi. Pri <code>document</code> sú uvedené názov „Môj dokument“ a jazyk <code>sk</code>. (Obrázok bude doplnený.)</figcaption>
+          <figure class=”diagram”>
+            <div class=”diagram-frame”>
+              <svg xmlns=”http://www.w3.org/2000/svg”
+                   viewBox=”0 0 1200 720”
+                   role=”graphics-document”
+                   aria-labelledby=”tree-title tree-desc”>
+
+                <title id=”tree-title”>Accessibility tree vo Firefox Accessibility Inspector</title>
+                <desc id=”tree-desc”>
+                  Diagram zobrazuje zjednodušenú reprezentáciu accessibility tree podľa Firefox Accessibility Inspector
+                  pre HTML dokument s titulkom Môj dokument, nadpisom prvej úrovne Nadpis a odsekom Odsek.
+                  Koreňovým objektom je document s názvom Môj dokument.
+                  Document má dvoch potomkov.
+                  Prvým je heading úrovne 1 s názvom Nadpis a potomkom text leaf s názvom Nadpis.
+                  Druhým je paragraph s prázdnym názvom a potomkom text leaf s názvom Odsek.
+                  Plné spojnice so šípkou znázorňujú hierarchický vzťah rodiča a potomka.
+                </desc>
+
+                <defs>
+                  <marker id=”tree-arrow”
+                          viewBox=”0 0 10 10”
+                          refX=”9”
+                          refY=”5”
+                          markerWidth=”8”
+                          markerHeight=”8”
+                          orient=”auto”>
+                    <path d=”M0 0 L10 5 L0 10 Z” fill=”currentColor”/>
+                  </marker>
+
+                  <style>
+                    #a11y-tree text {
+                      font-family: system-ui, -apple-system, “Segoe UI”, sans-serif;
+                      fill: currentColor;
+                    }
+                    #a11y-tree .root { fill: white; stroke: currentColor; stroke-width: 4; }
+                    #a11y-tree .root-inner { fill: none; stroke: currentColor; stroke-width: 1.5; }
+                    #a11y-tree .node { fill: white; stroke: currentColor; stroke-width: 3; }
+                    #a11y-tree .leaf { fill: white; stroke: currentColor; stroke-width: 3; stroke-dasharray: 10 7; }
+                    #a11y-tree .edge { fill: none; stroke: currentColor; stroke-width: 3; marker-end: url(#tree-arrow); }
+                    #a11y-tree .title { font-size: 28px; font-weight: 700; }
+                    #a11y-tree .property { font-size: 20px; }
+                    #a11y-tree .leaf-title { font-size: 22px; font-weight: 700; }
+                    #a11y-tree .leaf-name { font-size: 20px; }
+                  </style>
+                </defs>
+
+                <g id=”a11y-tree”>
+
+                <g aria-hidden=”true”>
+                  <path class=”edge” d=”M600 150 L600 220 L350 220 L350 300”/>
+                  <path class=”edge” d=”M600 150 L600 220 L850 220 L850 300”/>
+                  <path class=”edge” d=”M350 445 L350 520”/>
+                  <path class=”edge” d=”M850 445 L850 520”/>
+                </g>
+
+                <g role=”graphics-object” aria-labelledby=”a11y-document-title a11y-document-desc”>
+                  <title id=”a11y-document-title”>document</title>
+                  <desc id=”a11y-document-desc”>Koreňový objekt accessibility tree. Má názov Môj dokument. Jeho priamymi potomkami sú heading úrovne 1 a paragraph.</desc>
+                  <rect class=”root” x=”450” y=”40” width=”300” height=”110” rx=”16”/>
+                  <rect class=”root-inner” x=”460” y=”50” width=”280” height=”90” rx=”11”/>
+                  <text class=”title” x=”600” y=”88” text-anchor=”middle”>document</text>
+                  <text class=”property” x=”600” y=”122” text-anchor=”middle”>názov: “Môj dokument”</text>
+                </g>
+
+                <g role=”graphics-object” aria-labelledby=”a11y-heading-title a11y-heading-desc”>
+                  <title id=”a11y-heading-title”>heading úrovne 1</title>
+                  <desc id=”a11y-heading-desc”>Objekt heading je potomkom objektu document. Má úroveň 1 a názov Nadpis. Jeho potomkom je text leaf s názvom Nadpis.</desc>
+                  <rect class=”node” x=”180” y=”300” width=”340” height=”145” rx=”16”/>
+                  <text class=”title” x=”350” y=”345” text-anchor=”middle”>heading</text>
+                  <text class=”property” x=”350” y=”380” text-anchor=”middle”>level: 1</text>
+                  <text class=”property” x=”350” y=”415” text-anchor=”middle”>názov: “Nadpis”</text>
+                </g>
+
+                <g role=”graphics-object” aria-labelledby=”a11y-paragraph-title a11y-paragraph-desc”>
+                  <title id=”a11y-paragraph-title”>paragraph</title>
+                  <desc id=”a11y-paragraph-desc”>Objekt paragraph je potomkom objektu document. Má prázdny názov. Jeho potomkom je text leaf s názvom Odsek.</desc>
+                  <rect class=”node” x=”680” y=”300” width=”340” height=”145” rx=”16”/>
+                  <text class=”title” x=”850” y=”355” text-anchor=”middle”>paragraph</text>
+                  <text class=”property” x=”850” y=”400” text-anchor=”middle”>názov: “”</text>
+                </g>
+
+                <g role=”graphics-object” aria-labelledby=”a11y-heading-leaf-title a11y-heading-leaf-desc”>
+                  <title id=”a11y-heading-leaf-title”>text leaf Nadpis</title>
+                  <desc id=”a11y-heading-leaf-desc”>Textový objekt text leaf je potomkom objektu heading. Má názov Nadpis.</desc>
+                  <rect class=”leaf” x=”225” y=”520” width=”250” height=”105” rx=”52”/>
+                  <text class=”leaf-title” x=”350” y=”562” text-anchor=”middle”>text leaf</text>
+                  <text class=”leaf-name” x=”350” y=”596” text-anchor=”middle”>názov: “Nadpis”</text>
+                </g>
+
+                <g role=”graphics-object” aria-labelledby=”a11y-paragraph-leaf-title a11y-paragraph-leaf-desc”>
+                  <title id=”a11y-paragraph-leaf-title”>text leaf Odsek</title>
+                  <desc id=”a11y-paragraph-leaf-desc”>Textový objekt text leaf je potomkom objektu paragraph. Má názov Odsek.</desc>
+                  <rect class=”leaf” x=”725” y=”520” width=”250” height=”105” rx=”52”/>
+                  <text class=”leaf-title” x=”850” y=”562” text-anchor=”middle”>text leaf</text>
+                  <text class=”leaf-name” x=”850” y=”596” text-anchor=”middle”>názov: “Odsek”</text>
+                </g>
+
+                </g>
+              </svg>
+            </div>
+            <figcaption>Accessibility tree diagram s objektmi <code>document</code>, <code>heading</code> a <code>paragraph</code> podľa Firefox Accessibility Inspector.</figcaption>
           </figure>
 
           <p>Koreňový objekt <code>document</code> môže niesť názov „Môj dokument“, ktorý vychádza z názvu dokumentu. V diagrame je pri ňom uvedená aj informácia o jazyku <code>sk</code>, odvodená z <code>lang="sk"</code>.</p>
@@ -539,8 +784,10 @@ paragraph
           <p>Výslednú reprezentáciu možno skúmať aj vo vývojárskych nástrojoch prehliadača.</p>
 
           <figure class="diagram">
-            <div class="diagram-slot" aria-hidden="true">Screenshot</div>
-            <figcaption>Screenshot panela Accessibility s vypočítanou rolou, názvom, stavmi a ďalšími vlastnosťami objektu. (Obrázok bude doplnený.)</figcaption>
+            <div class="diagram-frame">
+              <img src="img/firefox-devtools.png" width="947" height="858" loading="lazy" decoding="async" alt="Panel Accessibility vo Firefox DevTools so zvoleným objektom heading (level 1): rola „heading“, názov „Nadpis“, zdrojový element h1 a ďalšie vlastnosti a stavy.">
+            </div>
+            <figcaption>Panel Accessibility vo Firefox DevTools s vypočítanou rolou, názvom, stavmi a ďalšími vlastnosťami objektu pre nadpis „Nadpis“.</figcaption>
           </figure>
 
           <p>Takýto pohľad umožňuje pri diagnostike overiť nielen samotné HTML, ale aj výslednú rolu, prístupný názov, popis, stavy a ďalšie vlastnosti, ktoré prehliadač pre objekt vypočítal a exponuje.</p>

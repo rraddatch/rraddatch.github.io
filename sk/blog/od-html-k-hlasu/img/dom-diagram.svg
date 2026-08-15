@@ -1,0 +1,285 @@
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 1200 820"
+     width="1200"
+     height="820"
+     role="graphics-document"
+     aria-labelledby="dom-title dom-desc">
+
+  <title id="dom-title">DOM strom ukážkového HTML dokumentu</title>
+  <desc id="dom-desc">
+    Diagram zobrazuje hierarchickú štruktúru DOM vytvorenú z HTML dokumentu.
+    Koreňovým objektom je Document. Jeho potomkom je element html s atribútom lang rovný sk.
+    Element html má dvoch priamych potomkov: head a body.
+    Element head obsahuje element title, ktorý obsahuje textový uzol Môj dokument.
+    Element body obsahuje element h1 s textovým uzlom Nadpis a element p s textovým uzlom Odsek.
+    Plné spojnice so šípkou znázorňujú vzťah rodiča a potomka.
+    Textové uzly sú vizuálne odlíšené oválnym tvarom a prerušovaným rámom.
+  </desc>
+
+  <defs>
+    <marker id="arrow"
+            viewBox="0 0 10 10"
+            refX="9"
+            refY="5"
+            markerWidth="8"
+            markerHeight="8"
+            orient="auto">
+      <path d="M0 0 L10 5 L0 10 Z" fill="currentColor"/>
+    </marker>
+
+    <style>
+      text {
+        font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        fill: currentColor;
+      }
+
+      .document-node {
+        fill: white;
+        stroke: currentColor;
+        stroke-width: 4;
+      }
+
+      .document-inner {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+      }
+
+      .element-node {
+        fill: white;
+        stroke: currentColor;
+        stroke-width: 3;
+      }
+
+      .text-node {
+        fill: white;
+        stroke: currentColor;
+        stroke-width: 3;
+        stroke-dasharray: 10 7;
+      }
+
+      .edge {
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 3;
+        marker-end: url(#arrow);
+      }
+
+      .node-title {
+        font-size: 27px;
+        font-weight: 700;
+      }
+
+      .attribute {
+        font-size: 19px;
+      }
+
+      .text-label {
+        font-size: 21px;
+        font-weight: 600;
+      }
+    </style>
+  </defs>
+
+  <!-- Spojnice sú dekoratívne; ich význam je opísaný pri objektoch a v popise SVG. -->
+  <g aria-hidden="true">
+    <path class="edge" d="M600 130 L600 190"/>
+    <path class="edge" d="M600 310 L600 365 L300 365 L300 420"/>
+    <path class="edge" d="M600 310 L600 365 L900 365 L900 420"/>
+    <path class="edge" d="M300 520 L300 570"/>
+    <path class="edge" d="M900 520 L900 565 L760 565 L760 610"/>
+    <path class="edge" d="M900 520 L900 565 L1040 565 L1040 610"/>
+    <path class="edge" d="M300 690 L300 725"/>
+    <path class="edge" d="M760 690 L760 725"/>
+    <path class="edge" d="M1040 690 L1040 725"/>
+  </g>
+
+  <!-- Document -->
+  <g role="graphics-object" aria-labelledby="document-title document-desc">
+    <title id="document-title">Document</title>
+    <desc id="document-desc">
+      Koreňový objekt DOM. Jeho priamym potomkom je element html.
+    </desc>
+
+    <rect class="document-node"
+          x="485" y="40"
+          width="230" height="90"
+          rx="16"/>
+
+    <rect class="document-inner"
+          x="495" y="50"
+          width="210" height="70"
+          rx="11"/>
+
+    <text class="node-title"
+          x="600" y="95"
+          text-anchor="middle">Document</text>
+  </g>
+
+  <!-- HTML -->
+  <g role="graphics-object" aria-labelledby="html-title html-desc">
+    <title id="html-title">Element html</title>
+    <desc id="html-desc">
+      Element html je potomkom objektu Document.
+      Má atribút lang s hodnotou sk.
+      Jeho priamymi potomkami sú elementy head a body.
+    </desc>
+
+    <rect class="element-node"
+          x="475" y="190"
+          width="250" height="120"
+          rx="16"/>
+
+    <text class="node-title"
+          x="600" y="235"
+          text-anchor="middle">html</text>
+
+    <line x1="505" y1="255"
+          x2="695" y2="255"
+          stroke="currentColor"
+          stroke-width="2"/>
+
+    <text class="attribute"
+          x="600" y="290"
+          text-anchor="middle">lang="sk"</text>
+  </g>
+
+  <!-- HEAD -->
+  <g role="graphics-object" aria-labelledby="head-title head-desc">
+    <title id="head-title">Element head</title>
+    <desc id="head-desc">
+      Element head je potomkom elementu html.
+      Jeho priamym potomkom je element title.
+    </desc>
+
+    <rect class="element-node"
+          x="190" y="420"
+          width="220" height="100"
+          rx="16"/>
+
+    <text class="node-title"
+          x="300" y="480"
+          text-anchor="middle">head</text>
+  </g>
+
+  <!-- BODY -->
+  <g role="graphics-object" aria-labelledby="body-title body-desc">
+    <title id="body-title">Element body</title>
+    <desc id="body-desc">
+      Element body je potomkom elementu html.
+      Jeho priamymi potomkami sú elementy h1 a p.
+    </desc>
+
+    <rect class="element-node"
+          x="790" y="420"
+          width="220" height="100"
+          rx="16"/>
+
+    <text class="node-title"
+          x="900" y="480"
+          text-anchor="middle">body</text>
+  </g>
+
+  <!-- TITLE -->
+  <g role="graphics-object" aria-labelledby="title-title title-desc">
+    <title id="title-title">Element title</title>
+    <desc id="title-desc">
+      Element title je potomkom elementu head.
+      Obsahuje textový uzol Môj dokument.
+    </desc>
+
+    <rect class="element-node"
+          x="190" y="590"
+          width="220" height="100"
+          rx="16"/>
+
+    <text class="node-title"
+          x="300" y="650"
+          text-anchor="middle">title</text>
+  </g>
+
+  <!-- H1 -->
+  <g role="graphics-object" aria-labelledby="h1-title h1-desc">
+    <title id="h1-title">Element h1</title>
+    <desc id="h1-desc">
+      Element h1 je potomkom elementu body.
+      Obsahuje textový uzol Nadpis.
+    </desc>
+
+    <rect class="element-node"
+          x="650" y="590"
+          width="220" height="100"
+          rx="16"/>
+
+    <text class="node-title"
+          x="760" y="650"
+          text-anchor="middle">h1</text>
+  </g>
+
+  <!-- P -->
+  <g role="graphics-object" aria-labelledby="p-title p-desc">
+    <title id="p-title">Element p</title>
+    <desc id="p-desc">
+      Element p je potomkom elementu body.
+      Obsahuje textový uzol Odsek.
+    </desc>
+
+    <rect class="element-node"
+          x="930" y="590"
+          width="220" height="100"
+          rx="16"/>
+
+    <text class="node-title"
+          x="1040" y="650"
+          text-anchor="middle">p</text>
+  </g>
+
+  <!-- Textové uzly -->
+  <g role="graphics-object" aria-labelledby="text-document-title text-document-desc">
+    <title id="text-document-title">Textový uzol Môj dokument</title>
+    <desc id="text-document-desc">
+      Textový obsah elementu title.
+    </desc>
+
+    <rect class="text-node"
+          x="175" y="725"
+          width="250" height="70"
+          rx="35"/>
+
+    <text class="text-label"
+          x="300" y="768"
+          text-anchor="middle">"Môj dokument"</text>
+  </g>
+
+  <g role="graphics-object" aria-labelledby="text-heading-title text-heading-desc">
+    <title id="text-heading-title">Textový uzol Nadpis</title>
+    <desc id="text-heading-desc">
+      Textový obsah elementu h1.
+    </desc>
+
+    <rect class="text-node"
+          x="650" y="725"
+          width="220" height="70"
+          rx="35"/>
+
+    <text class="text-label"
+          x="760" y="768"
+          text-anchor="middle">"Nadpis"</text>
+  </g>
+
+  <g role="graphics-object" aria-labelledby="text-paragraph-title text-paragraph-desc">
+    <title id="text-paragraph-title">Textový uzol Odsek</title>
+    <desc id="text-paragraph-desc">
+      Textový obsah elementu p.
+    </desc>
+
+    <rect class="text-node"
+          x="930" y="725"
+          width="220" height="70"
+          rx="35"/>
+
+    <text class="text-label"
+          x="1040" y="768"
+          text-anchor="middle">"Odsek"</text>
+  </g>
+</svg>
